@@ -66,6 +66,18 @@ class CompositionTests(unittest.TestCase):
         values = json.loads(subprocess.check_output(["node", "-e", script], text=True))
         self.assertEqual(values, ["—", "—", "0", "—", "&lt;img&gt;", "—", "0"])
 
+    def test_workspace_scroll_opt_out_only_changes_the_requested_page(self):
+        pages=json.loads(json.dumps(self.pages))
+        pages[0]['workspace_scroll']=False
+        result=compose(self.original,pages,'dashboard-example')
+        content=self.content(result['views'][0])
+        workspace=next(c for c in content['cards'] if c.get('view_layout',{}).get('grid-area')=='work')
+        self.assertIn('.tabs-content{overflow:hidden!important}',workspace['custom_css']['css'])
+        self.assertIn('.tab-panel.active{min-height:0!important}',workspace['custom_css']['css'])
+        baseline=compose(self.original,self.pages,'dashboard-example')
+        self.assertEqual(result['views'][1],baseline['views'][1])
+        self.assertNotIn('workspace_scroll',self.pages[0])
+
     def test_optional_last_card_releases_footer_space_on_both_layouts(self):
         for missing in (True, False):
             with self.subTest(missing=missing):

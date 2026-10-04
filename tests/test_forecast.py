@@ -88,7 +88,8 @@ class ForecastTests(unittest.TestCase):
         for tab,hours in zip(config['tabs'],[6,24]):
             panel=tab['cards'][0]
             self.assertEqual(panel['cards'][0]['variables']['hours'],hours)
-            self.assertEqual(len(panel['cards'][1]['card']['cards']),hours)
+            self.assertEqual([c['variables']['slot'] for c in panel['cards'][1]['card']['cards']],
+                             list(range(0,hours,3 if hours==24 else 1)))
             self.assertEqual(panel['cards'][4]['body']['cards'][0]['entity'],source['entity'])
         for tab in config['tabs']:
             for index in (2,3):
@@ -99,6 +100,20 @@ class ForecastTests(unittest.TestCase):
         self.assertEqual(source['tap_action'],{'action':'more-info'})
         self.assertEqual(set(forecast_templates()),{'bc_forecast_hero','bc_forecast_hour'})
         self.assertNotIn('name',config['tabs'][0]['cards'][0]['cards'][0])
+
+    def test_hour_strip_uses_bounded_grid_and_height_relative_typography(self):
+        config=atmospheric_forecast(weather_entity='weather.test',rain_entity='sensor.rain',
+            feels_entity='sensor.feels',sun_entity='sun.test',clock_entity='sensor.clock',
+            details_cards=[],card_id='bc-test-forecast')
+        for tab in config['tabs']:
+            strip=tab['cards'][0]['cards'][1]
+            self.assertIn('minmax(0,1fr)',strip['card']['layout']['grid-template-columns'])
+            css=strip['card_mod']['style']['layout-card$']['grid-layout$']
+            self.assertIn('grid-template-rows:minmax(0,1fr)',css)
+            self.assertIn('overflow:hidden',css)
+        hour=forecast_templates()['bc_forecast_hour']
+        self.assertIn('container-type:size',hour['extra_styles'])
+        self.assertIn('26cqh',hour['extra_styles'])
 
     def test_all_icons_exist_in_the_pinned_library(self):
         supported={'clear-day','clear-night','cloudy','overcast-day-rain','overcast-night-rain',
