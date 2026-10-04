@@ -11,6 +11,7 @@ from screen import Screen, apply_screen
 from chrome import interface_control, kiosk_config
 from scale import scale_canvas, scale_controls
 from weather import animated_weather
+from forecast import forecast_templates
 
 ROOT = Path(__file__).resolve().parents[1]
 THEME = "Belovodie Command"
@@ -218,6 +219,7 @@ def compose(original, pages, url_path, clock_entity=None, screen=None):
         raise ValueError("Every original view must be accounted for")
     result = {k: deepcopy(v) for k, v in original.items() if k != "views"}
     templates = json.loads((ROOT / "src/button-templates.json").read_text())
+    templates.update(forecast_templates())
     # Button Card collects extra_styles through its template inheritance chain.
     # Share calibration once instead of duplicating it in every route/button.
     for template in templates.values():
