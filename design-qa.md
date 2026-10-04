@@ -1,5 +1,25 @@
 # Belovodie Command visual verification
 
+## Interface toggle and stale-resource follow-up
+
+- The user's already open Main tab retained Universal Card 1.0.8 and omitted
+  newly installed frontend modules. It showed a configuration-error card in
+  place of the forecast, default tab styles and native Home Assistant chrome.
+  The server resource inventory and installed bundle were already 1.0.10.
+  Reloading that same tab loaded the current resources and restored the forecast,
+  styling and Kiosk Mode; a new Universal Card release was unnecessary.
+- The More menu now starts with a reversible show/hide control. The choice is
+  scoped to the current browser and dashboard, with an explicit URL fallback
+  when browser storage is blocked. A click reloads the page and resource list.
+- View height subtracts Kiosk Mode's zero header height when hidden, or the
+  native Home Assistant header height when shown. Preview browser checks at
+  2200 × 1440, 1280 × 800 and 800 × 1280 confirmed that showing the interface
+  does not introduce page scrolling. Native mobile sidebar behavior is retained.
+- Sixteen local tests passed, including default/scoped choices, navigation,
+  reload, temporary editor override, blocked storage, URL preservation, control
+  labels and absence of device-service calls. Production verification follows
+  publication and deployment.
+
 final result: passed
 
 Target: the third selected reference, `.local/selected-reference.png` (1487 × 1058).

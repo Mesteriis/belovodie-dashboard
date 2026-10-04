@@ -35,6 +35,12 @@ class CompositionTests(unittest.TestCase):
         self.assertEqual([v["path"] for v in result["views"]], ["home", "room"])
         for v in result["views"]:
             self.assertIn("100dvh", v["layout"]["height"])
+            self.assertIn("--kiosk-header-height", v["layout"]["height"])
+            navigation = v["cards"][0]
+            more = next(c for c in navigation["cards"] if c.get("view_layout", {}).get("grid-area") == "more")
+            control = more["body"]["cards"][0]["cards"][0]
+            self.assertEqual(control["tap_action"]["action"], "javascript")
+            self.assertIn("belovodie:ha-ui:dashboard-example", control["tap_action"]["javascript"])
             dock = next(c for c in v["cards"] if c.get("view_layout", {}).get("grid-area") == "dock")
             self.assertEqual(dock["layout"]["height"], "100%")
             details = dock["cards"][0]

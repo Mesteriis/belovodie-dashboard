@@ -8,6 +8,7 @@ import json
 from pathlib import Path
 import re
 from screen import Screen, apply_screen
+from chrome import interface_control, kiosk_config
 
 ROOT = Path(__file__).resolve().parents[1]
 THEME = "Belovodie Command"
@@ -110,7 +111,7 @@ def navigation(pages, current, url_path, clock_entity=None):
                               "name": [{"font-weight": 600 if active else 400}]})
     main = pages[:6]
     # Compact navigation hides secondary tabs; every route remains in this menu.
-    extra = [nav(p) for p in pages if p["path"] != current] + [
+    extra = [interface_control(url_path), *[nav(p) for p in pages if p["path"] != current],
         button("Редактор панели", "mdi:pencil", {"action": "navigate",
                "navigation_path": f"/{url_path}/{current}?edit=1&disable_km"}),
         button("Настройки", "mdi:cog", {"action": "navigate", "navigation_path": "/config"}),
@@ -168,7 +169,7 @@ def compose(original, pages, url_path, clock_entity=None, screen=None):
         if not any(parent.startswith("bc_") for parent in parents):
             template["extra_styles"] = template.get("extra_styles", "") + screen.css()
     result.setdefault("button_card_templates", {}).update(templates)
-    result["kiosk_mode"] = {"hide_header": True, "hide_sidebar": True}
+    result["kiosk_mode"] = kiosk_config(url_path)
     result["views"] = []
     for page in pages:
         if len(page["metrics"]) != 4:
@@ -214,7 +215,7 @@ def compose(original, pages, url_path, clock_entity=None, screen=None):
         result["views"].append({"path": page["path"], "title": page["title"],
             "icon": page.get("icon", "mdi:view-dashboard"),
             "theme": THEME, "background": "var(--primary-background-color)", "type": "custom:grid-layout", "cards": cards,
-            "layout": {"height": "calc(100dvh - clamp(16px,2.222222dvh,32px))", "background": "#092430", "margin": "0", "padding": "clamp(8px,1.111111dvh,16px) clamp(8px,1.09091vw,24px)",
+            "layout": {"height": "calc(100dvh - var(--kiosk-header-height,var(--header-height,56px)) - clamp(16px,2.222222dvh,32px))", "background": "#092430", "margin": "0", "padding": "clamp(8px,1.111111dvh,16px) clamp(8px,1.09091vw,24px)",
                 "box-sizing": "border-box", "grid-template-columns": "repeat(4,minmax(0,1fr))",
                 "grid-template-rows": "minmax(78px,8vh) minmax(180px,22vh) minmax(0,1fr) minmax(100px,11vh)",
                 "grid-template-areas": '"nav nav nav nav" "stat0 stat1 stat2 stat3" "work work work dock" "footer footer footer last"',
