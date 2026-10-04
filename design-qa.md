@@ -15,10 +15,25 @@
   native Home Assistant header height when shown. Preview browser checks at
   2200 × 1440, 1280 × 800 and 800 × 1280 confirmed that showing the interface
   does not introduce page scrolling. Native mobile sidebar behavior is retained.
-- Sixteen local tests passed, including default/scoped choices, navigation,
+- Sixteen local and GitHub Actions tests passed, including default/scoped choices, navigation,
   reload, temporary editor override, blocked storage, URL preservation, control
-  labels and absence of device-service calls. Production verification follows
-  publication and deployment.
+  labels and absence of device-service calls.
+- Belovodie 0.1.3 was published, downloaded through HACS and verified against
+  the release artifact. Universal Card remains at the verified 1.0.10 release.
+  The YAML dashboard was backed up and replaced atomically, then force-reloaded
+  through the Lovelace API. Readback exactly matched the proposed configuration;
+  comparison retained every unrelated binding and action. No core restart.
+- Production geometry checks passed for all 20 routes in both interface modes
+  at 2200 × 1440, 1280 × 800 and 800 × 1280: 120 checks, no configuration-card
+  errors, document overflow or full-height scrolling containers. The desktop
+  header/sidebar and native mobile sidebar behavior matched the selected mode.
+  Real clicks and reloads verified the saved choice and its reversal.
+- Visual proof uses the ordinary 1600 × 900 browser window:
+  `.local/interface-home-native-final.png`, `.local/interface-menu-native-final.png`
+  and `.local/interface-shown-native-final.png`. The larger emulated screenshots
+  had compositor tiling and were excluded from visual evidence; the three target
+  sizes above have rendered DOM geometry evidence. Temporary viewport overrides
+  were removed and the final interface choice was restored to hidden.
 
 final result: passed
 
