@@ -47,8 +47,8 @@ height. At 1650px and below the header shows fewer tabs; at 1056px and below pri
 measurements use two columns and the detail dock moves below the workspace. Every
 route remains reachable from **Ещё**. On short screens long working content scrolls
 inside the card; compact density caps prevent a small calibration from enlarging
-text beyond its slots. The page stays bounded. No device detection service, browser
-storage or screen-specific dashboard copies are required.
+text beyond its slots. The page stays bounded. No device detection service or
+screen-specific dashboard copies are required.
 
 For storage dashboards, apply the rendered configuration through Home Assistant's
 dashboard editor/API after backing up the original. For YAML dashboards, back up
@@ -82,9 +82,21 @@ the card; details are closed dialogs and do not extend the document.
 `visual_tile(card)` keeps the native tile's actions and features while enlarging
 its typography and icon for the desktop grid.
 
-Navigation's **Ещё** menu includes Settings, HACS and an editor link with
-`disable_km` so hiding dashboard chrome does not remove access to administration.
-Kiosk Mode applies only to the rendered dashboard.
+Navigation's **Ещё** menu starts with **Показать интерфейс HA** / **Скрыть интерфейс
+HA**. The control shows or hides Home Assistant's header and sidebar together.
+The default is hidden. The choice is stored per browser and dashboard, survives
+navigation and reload, and does not change other devices or dashboards. Kiosk
+Mode's documented JavaScript templates read the preference; Button Card's
+JavaScript action saves it and reloads the page. If browser storage is blocked,
+the URL override still switches the current view. The layout subtracts the native
+header height when it is visible, so the page remains bounded in either mode.
+
+The same menu includes Settings, HACS and an editor link with `disable_km`,
+which temporarily shows administration without changing the saved choice.
+After HACS installs or updates a card, reload the entire browser tab to load its
+current resource list. An already open tab can retain older Universal Card code
+and omit newly installed Card Mod or Kiosk Mode until that reload, producing a
+configuration error or default styling despite a correct server configuration.
 
 ## Development
 
