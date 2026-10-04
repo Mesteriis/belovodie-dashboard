@@ -15,6 +15,7 @@ Belovodie Command:
   ha-card-border-color: '#1b4353'
   ha-card-border-radius: '22px'
   ha-card-box-shadow: 'none'
+  masonry-view-card-margin: '0px'
   app-header-background-color: '#092430'
   app-header-text-color: '#dceef5'
   state-icon-color: '#48c7ef'

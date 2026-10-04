@@ -25,7 +25,7 @@
           "box-shadow": "none"
         },
         {
-          "padding": "24px 28px"
+          "padding": "var(--bc-padding-y,24px) var(--bc-padding-x,28px)"
         },
         {
           "color": "#dceef5"
@@ -36,7 +36,7 @@
           "grid-template-areas": "\"i n arrow\""
         },
         {
-          "grid-template-columns": "72px minmax(0,1fr) 24px"
+          "grid-template-columns": "var(--bc-action-icon-column,72px) minmax(0,1fr) var(--bc-arrow-column,24px)"
         },
         {
           "grid-template-rows": "minmax(0,1fr)"
@@ -57,6 +57,9 @@
         },
         {
           "text-align": "left"
+        },
+        {
+          "overflow-wrap": "anywhere"
         }
       ],
       "icon": [
@@ -99,13 +102,13 @@
           "grid-template-areas": "\"i n\" \"value value\" \"l l\""
         },
         {
-          "grid-template-columns": "60px minmax(0,1fr)"
+          "grid-template-columns": "var(--bc-metric-icon-column,60px) minmax(0,1fr)"
         },
         {
-          "grid-template-rows": "40px minmax(0,1fr) 46px"
+          "grid-template-rows": "var(--bc-metric-title-row,40px) minmax(0,1fr) var(--bc-metric-label-row,46px)"
         },
         {
-          "row-gap": "12px"
+          "row-gap": "var(--bc-metric-gap,12px)"
         }
       ],
       "icon": [
@@ -169,13 +172,13 @@
             "width": "29%"
           },
           {
-            "height": "80px"
+            "height": "var(--bc-mini-chart-height,80px)"
           },
           {
             "right": "22px"
           },
           {
-            "bottom": "60px"
+            "bottom": "var(--bc-chart-bottom,60px)"
           }
         ],
         "decor": [
@@ -276,7 +279,7 @@
       ],
       "icon": [
         {
-          "width": "70px"
+          "width": "var(--bc-brand-icon,70px)"
         }
       ],
       "custom_fields": {
@@ -340,19 +343,20 @@
           }
         ]
       }
-    }
+    },
+    "extra_styles": "@media(max-width:1650px){#time{font-size:24px!important;letter-spacing:1px!important}#label{font-size:12px!important}}"
   },
   "bc_small": {
     "template": "bc_metric",
     "styles": {
       "card": [
         {
-          "padding": "18px 22px"
+          "padding": "var(--bc-small-padding-y,18px) var(--bc-small-padding-x,22px)"
         }
       ],
       "grid": [
         {
-          "grid-template-rows": "30px minmax(0,1fr) 30px"
+          "grid-template-rows": "var(--bc-small-title-row,30px) minmax(0,1fr) var(--bc-small-label-row,30px)"
         },
         {
           "row-gap": "2px"
@@ -371,7 +375,7 @@
       "custom_fields": {
         "value": [
           {
-            "font-size": "clamp(22px,2.2vw,36px)"
+            "font-size": "var(--bc-small-value,36px)"
           }
         ]
       }
@@ -385,13 +389,13 @@
           "grid-template-areas": "\"n n n\" \"i value value\" \"condition feels feels\" \"l l l\""
         },
         {
-          "grid-template-columns": "110px minmax(0,1fr) minmax(0,1fr)"
+          "grid-template-columns": "max(64px,var(--bc-weather-icon,110px)) minmax(0,1fr) minmax(0,1fr)"
         },
         {
-          "grid-template-rows": "40px minmax(0,1fr) 35px 36px"
+          "grid-template-rows": "var(--bc-metric-title-row,40px) minmax(0,1fr) var(--bc-weather-condition-row,35px) var(--bc-weather-label-row,36px)"
         },
         {
-          "row-gap": "8px"
+          "row-gap": "var(--bc-weather-gap,8px)"
         }
       ],
       "icon": [
@@ -428,10 +432,10 @@
       },
       "entity_picture": [
         {
-          "width": "110px"
+          "width": "var(--bc-weather-icon,110px)"
         },
         {
-          "height": "110px"
+          "height": "var(--bc-weather-icon,110px)"
         },
         {
           "border-radius": "0"

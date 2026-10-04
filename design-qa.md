@@ -95,4 +95,30 @@ limitation; no global sidebar configuration was changed.
 - [x] Compare full view and focused typography/chart regions.
 - [x] Verify all 20 routes and primary non-device interactions.
 - [x] Preserve action contracts and back up the original dashboard.
-- [x] Run eight preset regressions and Universal Card's 154-test coverage gates.
+- [x] Run twelve preset regressions and Universal Card's 154-test coverage gates.
+
+## Screen calibration and tablet follow-up
+
+The offline renderer now exposes `--screen WIDTHxHEIGHT` and the Python API accepts
+`Screen(width, height)`. This calibrates density; the live page continues to track
+the browser's CSS viewport. Compact navigation retains every route in More; the
+portrait grid has two metric columns and a horizontal closed detail dock.
+
+Geometry checks covered all 20 preview routes at 1280×800 and 800×1280, followed
+by all 20 at 2200×1440. No page overflow, default dialogs, unloaded images or
+configuration-card errors appeared. A post-fix portrait recapture verifies room
+and native-control grids in two columns. Wheel input moved the room card's own
+scroll position while document scroll remained zero. The More dialog fit within
+the portrait viewport, and the Allergen tab opened its real measurements.
+
+The explicit 1280×800 calibration was saved and checked independently in the
+browser. Compact density caps preserve readable values. Shared Button Card
+styles keep the configuration below the transport message limit instead of
+repeating calibration CSS for each button. Layout Card media-query feature keys
+are normalized to match its browser MediaQueryList lookup. Twelve regressions
+cover composition, parsing, preservation, query normalization and data semantics.
+Private evidence: `.local/adaptive-layout-audit.json`,
+`.local/adaptive-fixed-800-route-rooms.png`,
+`.local/adaptive-fixed-800-route-system.png`, `.local/parameter-1280-real.png`.
+The theme's zero masonry margin follows Layout Card's native CSS variable and
+prevents inherited card margins from consuming compact grid tracks.

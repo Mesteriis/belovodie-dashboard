@@ -6,12 +6,14 @@ credentials, device actions, or custom frontend runtime are part of this theme.
 from copy import deepcopy
 import json
 from pathlib import Path
+import re
+from screen import Screen, apply_screen
 
 ROOT = Path(__file__).resolve().parents[1]
 THEME = "Belovodie Command"
 
 
-def grid(cards, columns="minmax(0,1fr)", rows=None, height=None, gap="16px"):
+def grid(cards, columns="minmax(0,1fr)", rows=None, height=None, gap="16px", mediaquery=None):
     layout = {"grid-template-columns": columns, "grid-gap": gap,
               "margin": "0", "padding": "0", "card_margin": "0",
               "place-items": "stretch", "min-height": "0"}
@@ -19,6 +21,10 @@ def grid(cards, columns="minmax(0,1fr)", rows=None, height=None, gap="16px"):
         layout["grid-template-rows"] = rows
     if height:
         layout["height"] = height
+    if mediaquery:
+        # Layout Card indexes by MediaQueryList.media, which normalizes colons.
+        layout["mediaquery"] = {re.sub(r":\s*", ": ", query): deepcopy(value)
+                                for query, value in mediaquery.items()}
     return {"type": "custom:layout-card", "layout_type": "custom:grid-layout",
             "layout": layout, "cards": deepcopy(cards)}
 
@@ -103,7 +109,8 @@ def navigation(pages, current, url_path, clock_entity=None):
                                        {"border-color": "#24576b" if active else "transparent"}],
                               "name": [{"font-weight": 600 if active else 400}]})
     main = pages[:6]
-    extra = [nav(p) for p in pages[6:]] + [
+    # Compact navigation hides secondary tabs; every route remains in this menu.
+    extra = [nav(p) for p in pages if p["path"] != current] + [
         button("Редактор панели", "mdi:pencil", {"action": "navigate",
                "navigation_path": f"/{url_path}/{current}?edit=1&disable_km"}),
         button("Настройки", "mdi:cog", {"action": "navigate", "navigation_path": "/config"}),
@@ -119,20 +126,48 @@ def navigation(pages, current, url_path, clock_entity=None):
                    custom_fields={"time": "[[[ return entity?.state && entity.state !== 'unavailable' ? entity.state : new Date().toLocaleTimeString(hass.locale.language,{hour:'2-digit',minute:'2-digit'}); ]]]"})
     profile = button("Профиль", "mdi:account", {"action": "navigate", "navigation_path": "/profile"},
                      "bc_brand", show_name=False)
-    return grid([logo, *map(nav, main), more, clock, profile],
+    main_cards = list(map(nav, main))
+    for i, card in enumerate(main_cards):
+        card["view_layout"] = {"grid-area": f"nav{i}"}
+        if i >= 3:
+            card["view_layout"]["show"] = {"mediaquery": "(min-width: 1651px)"}
+        elif i >= 1:
+            card["view_layout"]["show"] = {"mediaquery": "(min-width: 1057px)"}
+    for card, area in ((logo, "brand"), (more, "more"), (clock, "clock"), (profile, "profile")):
+        card["view_layout"] = {"grid-area": area}
+    result = grid([logo, *main_cards, more, clock, profile],
                 "80px repeat(5,minmax(100px,1fr)) minmax(215px,1.4fr) 140px minmax(210px,1.4fr) 74px",
                 height="100%", gap="12px")
+    result["layout"]["grid-template-areas"] = '"brand nav0 nav1 nav2 nav3 nav4 nav5 more clock profile"'
+    result["layout"]["mediaquery"] = {
+        "(max-width: 1056px)": {
+            "grid-template-columns": "44px minmax(0,1fr) 104px minmax(140px,1.4fr) 44px",
+            "grid-template-areas": '"brand nav0 more clock profile"', "grid-gap": "6px"},
+        "(max-width: 1650px)": {
+            "grid-template-columns": "50px repeat(3,minmax(0,1fr)) 100px minmax(170px,1.4fr) 50px",
+            "grid-template-areas": '"brand nav0 nav1 nav2 more clock profile"', "grid-gap": "8px"}}
+    return result
 
 
-def compose(original, pages, url_path, clock_entity=None):
+def compose(original, pages, url_path, clock_entity=None, screen=None):
     """Only the supplied pages/cards are published to Lovelace, never to GitHub."""
+    screen = Screen() if screen is None else screen
+    if not isinstance(screen, Screen):
+        raise ValueError("screen must be a Screen calibration profile")
     if not pages or len({p["path"] for p in pages}) != len(pages):
         raise ValueError("Pages need unique, non-empty paths")
     if {p["path"] for p in pages} != {p["path"] for p in original["views"]}:
         raise ValueError("Every original view must be accounted for")
     result = {k: deepcopy(v) for k, v in original.items() if k != "views"}
-    result.setdefault("button_card_templates", {}).update(
-        json.loads((ROOT / "src/button-templates.json").read_text()))
+    templates = json.loads((ROOT / "src/button-templates.json").read_text())
+    # Button Card collects extra_styles through its template inheritance chain.
+    # Share calibration once instead of duplicating it in every route/button.
+    for template in templates.values():
+        parents = template.get("template", [])
+        parents = [parents] if isinstance(parents, str) else parents
+        if not any(parent.startswith("bc_") for parent in parents):
+            template["extra_styles"] = template.get("extra_styles", "") + screen.css()
+    result.setdefault("button_card_templates", {}).update(templates)
     result["kiosk_mode"] = {"hide_header": True, "hide_sidebar": True}
     result["views"] = []
     for page in pages:
@@ -151,13 +186,26 @@ def compose(original, pages, url_path, clock_entity=None):
         work["view_layout"] = {"grid-area": "work"}
         cards.append(work)
         sidebar = grid(dock, rows=f"repeat({len(dock)},minmax(0,1fr))", height="100%", gap="10px")
+        sidebar["layout"]["mediaquery"] = {"(max-width: 1056px)": {
+            "grid-template-columns": f"repeat({len(dock)},minmax(0,1fr))",
+            "grid-template-rows": "minmax(0,1fr)", "grid-gap": "6px"}}
         sidebar["view_layout"] = {"grid-area": "dock"}
         cards.append(sidebar)
         footer_label = button("Быстрые сцены", template="bc_nav", styles={
             "card": [{"border": "none"}, {"background": "transparent"}, {"padding": "0"}],
             "name": [{"justify-self": "start"}, {"font-size": "var(--bc-small)"}, {"color": "#9fc5d6"}]})
-        footer = grid([footer_label, grid(page["footer"], "repeat(3,minmax(0,1fr))", height="100%")],
-                      rows="30px minmax(0,1fr)", height="100%", gap="12px")
+        footer_buttons = deepcopy(page["footer"])
+        for control in footer_buttons:
+            if control.get("type") == "custom:button-card":
+                control["extra_styles"] = control.get("extra_styles", "") + (
+                    '@media(max-width:1056px){#container{grid-template-areas:"i n"!important;'
+                    'grid-template-columns:24px minmax(0,1fr)!important;column-gap:6px!important}'
+                    '#arrow{display:none!important}#name{overflow-wrap:normal!important;'
+                    'font-size:14px!important;white-space:nowrap!important}ha-card{padding:8px!important}}')
+        footer = grid([footer_label, grid(footer_buttons, "repeat(3,minmax(0,1fr))", height="100%")],
+                      rows="30px minmax(0,1fr)", height="100%", gap="12px",
+                      mediaquery={"(max-width: 1650px)": {
+                          "grid-template-rows": "20px minmax(0,1fr)", "grid-gap": "8px"}})
         footer["view_layout"] = {"grid-area": "footer"}
         cards.append(footer)
         last = deepcopy(page["last"])
@@ -166,13 +214,18 @@ def compose(original, pages, url_path, clock_entity=None):
         result["views"].append({"path": page["path"], "title": page["title"],
             "icon": page.get("icon", "mdi:view-dashboard"),
             "theme": THEME, "background": "var(--primary-background-color)", "type": "custom:grid-layout", "cards": cards,
-            "layout": {"height": "calc(100dvh - 32px)", "background": "#092430", "margin": "0", "padding": "16px 24px",
+            "layout": {"height": "calc(100dvh - clamp(16px,2.222222dvh,32px))", "background": "#092430", "margin": "0", "padding": "clamp(8px,1.111111dvh,16px) clamp(8px,1.09091vw,24px)",
                 "box-sizing": "border-box", "grid-template-columns": "repeat(4,minmax(0,1fr))",
                 "grid-template-rows": "minmax(78px,8vh) minmax(180px,22vh) minmax(0,1fr) minmax(100px,11vh)",
                 "grid-template-areas": '"nav nav nav nav" "stat0 stat1 stat2 stat3" "work work work dock" "footer footer footer last"',
                 "grid-gap": "20px", "card_margin": "0", "--masonry-view-card-margin": "0px", "place-items": "stretch",
-                "mediaquery": {"(max-width: 1050px)": {
-                    "height": "calc(100dvh - 16px)", "padding": "8px", "grid-gap": "8px",
-                    "grid-template-columns": "repeat(4,minmax(0,1fr))",
-                    "grid-template-rows": "64px minmax(130px,22vh) minmax(0,1fr) 86px"}}}})
+                "mediaquery": {"(max-width: 1056px)": {
+                    "grid-gap": "8px",
+                    "grid-template-columns": "repeat(2,minmax(0,1fr))",
+                    "grid-template-rows": "56px minmax(144px,12dvh) minmax(144px,12dvh) minmax(0,1fr) clamp(64px,8dvh,92px) clamp(88px,10dvh,130px)",
+                    "grid-template-areas": '"nav nav" "stat0 stat1" "stat2 stat3" "work work" "dock dock" "footer last"'},
+                    "(max-width: 1650px), (max-height: 900px)": {
+                    "grid-gap": "12px",
+                    "grid-template-rows": "60px minmax(160px,22dvh) minmax(0,1fr) 100px"}}}})
+        apply_screen(cards, screen)
     return result

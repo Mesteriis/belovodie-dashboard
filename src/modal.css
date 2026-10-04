@@ -4,3 +4,5 @@
 .header-title {font-size:var(--bc-font,26px)!important;font-weight:400!important;}
 .header-icon {--mdc-icon-size:clamp(28px,2.8vw,54px);}
 .expand-icon {--mdc-icon-size:26px;transform:rotate(-90deg)!important;}
+@media(max-width:1650px){.header{padding:0 12px!important;gap:10px!important;min-height:44px}.header-icon{--mdc-icon-size:28px}.expand-icon{--mdc-icon-size:20px}}
+@media(max-width:1056px){.header{padding:0 8px!important;gap:6px!important}.header-left,.header-icon{display:none!important}.header-title{font-size:clamp(12px,1.6vw,16px)!important}.expand-icon{--mdc-icon-size:18px}}
