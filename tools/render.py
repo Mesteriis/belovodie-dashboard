@@ -6,6 +6,7 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from compose import compose
+from screen import Screen
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("original", type=Path)
@@ -13,8 +14,16 @@ parser.add_argument("pages", type=Path)
 parser.add_argument("output", type=Path)
 parser.add_argument("--url-path", required=True)
 parser.add_argument("--clock-entity")
+def screen_argument(value):
+    try:
+        return Screen.parse(value)
+    except ValueError as error:
+        raise argparse.ArgumentTypeError(str(error)) from error
+
+parser.add_argument("--screen", type=screen_argument, default=Screen(),
+                    help="calibration size in CSS pixels, WIDTHxHEIGHT (default: 2200x1440); actual viewport adapts automatically")
 args = parser.parse_args()
 dashboard = compose(json.loads(args.original.read_text()), json.loads(args.pages.read_text()),
-                    args.url_path, args.clock_entity)
+                    args.url_path, args.clock_entity, screen=args.screen)
 args.output.write_text(json.dumps(dashboard, ensure_ascii=False, indent=2) + "\n")
 args.output.chmod(0o600)

@@ -16,4 +16,5 @@
 .tab-panel.active > .tab-grid {min-height:0;height:100%;grid-auto-rows:minmax(0,1fr);}
 .tab-grid > .card-wrapper {min-height:0;height:100%;}
 .tab-grid > .card-wrapper > * {min-height:0;height:100%;}
-@media(max-width:1050px){.tabs-bar{padding:8px 8px 0}.tab-button{padding:10px!important;gap:8px!important}.tab-panel{padding:10px!important}}
+@media(max-width:1650px){.tabs-bar{padding:8px 8px 0}.tab-button{padding:10px 14px!important;gap:8px!important}.tab-panel{padding:10px!important}.tab-panel.active{min-height:640px}}
+@media(max-height:900px){.tab-panel.active{min-height:640px}}

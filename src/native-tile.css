@@ -2,7 +2,7 @@
   display: block;
   height: 100%;
   --ha-tile-info-primary-font-size: var(--bc-font, 30px);
-  --ha-tile-info-secondary-font-size: 36px;
+  --ha-tile-info-secondary-font-size: var(--bc-small-value,36px);
   --ha-tile-info-gap: 10px;
   --ha-tile-info-secondary-color: #9fc5d6;
 }
@@ -15,4 +15,4 @@ ha-card {
   box-sizing: border-box;
 }
 ha-tile-container {height: 100%;}
-ha-tile-icon {--tile-icon-size: 68px; --mdc-icon-size: 44px;}
+ha-tile-icon {--tile-icon-size: clamp(44px,3.1vw,68px); --mdc-icon-size: clamp(28px,2vw,44px);}

@@ -5,7 +5,8 @@ import sys
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
-from compose import compose, metric, modal
+from compose import compose, grid, metric, modal
+from screen import Screen
 
 
 class CompositionTests(unittest.TestCase):
@@ -54,6 +55,53 @@ class CompositionTests(unittest.TestCase):
         script += "fn({state:'0'}, {guard_entities:['sensor.a','sensor.b']}, {'sensor.a':{state:'0'},'sensor.b':{state:'0'}},h)]));"
         values = json.loads(subprocess.check_output(["node", "-e", script], text=True))
         self.assertEqual(values, ["—", "—", "0", "—", "&lt;img&gt;", "—", "0"])
+
+    def test_screen_parameter_changes_calibration_without_fixed_page_dimensions(self):
+        desktop = compose(self.original, self.pages, "dashboard-example")
+        tablet = compose(self.original, self.pages, "dashboard-example", screen=Screen(1280, 800))
+        desktop_metric = desktop["views"][0]["cards"][1]
+        tablet_metric = tablet["views"][0]["cards"][1]
+        desktop_css = desktop["button_card_templates"]["bc_action"]["extra_styles"]
+        tablet_css = tablet["button_card_templates"]["bc_action"]["extra_styles"]
+        self.assertIn("1.3636vw", desktop_css)
+        self.assertIn("2.3438vw", tablet_css)
+        self.assertIn("@media(max-width:1650px),(max-height:900px)", tablet_css)
+        self.assertIn("--bc-value:min(clamp", tablet_css)
+        self.assertNotIn("extra_styles", tablet_metric)
+        self.assertEqual(desktop_metric["tap_action"], tablet_metric["tap_action"])
+        self.assertEqual(desktop_metric["entity"], tablet_metric["entity"])
+        self.assertEqual(desktop["views"][0]["layout"], tablet["views"][0]["layout"])
+        self.assertIn("100dvh", tablet["views"][0]["layout"]["height"])
+
+    def test_compact_navigation_retains_routes_hidden_from_header(self):
+        more_pages = self.pages + [{**self.pages[0], "path": "third", "title": "Third"}]
+        original = {"views": [{"path": p["path"]} for p in more_pages]}
+        result = compose(original, more_pages, "dashboard-example")
+        navigation = result["views"][0]["cards"][0]
+        more = next(c for c in navigation["cards"] if c.get("view_layout", {}).get("grid-area") == "more")
+        links = more["body"]["cards"][0]["cards"]
+        routes = {c["tap_action"].get("navigation_path") for c in links}
+        self.assertIn("/dashboard-example/room", routes)
+        self.assertIn("/dashboard-example/third", routes)
+        self.assertIn("/config", routes)
+        compact = result["views"][0]["layout"]["mediaquery"]["(max-width: 1056px)"]
+        self.assertIn('"dock dock"', compact["grid-template-areas"])
+        self.assertIn('"stat0 stat1" "stat2 stat3"', compact["grid-template-areas"])
+
+    def test_invalid_screen_configuration_fails_before_rendering(self):
+        self.assertEqual(Screen.parse("1280x800"), Screen(1280, 800))
+        self.assertEqual(Screen.parse("2200×1440"), Screen())
+        for value in ("0x800", "1280x-1", "1280x800px", "20000x1440", "auto"):
+            with self.subTest(value=value), self.assertRaises(ValueError):
+                Screen.parse(value)
+        with self.assertRaises(ValueError):
+            compose(self.original, self.pages, "dashboard-example", screen=0)
+
+    def test_grid_media_queries_match_browser_normalized_feature_keys(self):
+        queries = {"(max-width:1056px)": {"grid-template-columns": "1fr 1fr"}}
+        result = grid([], mediaquery=queries)
+        self.assertIn("(max-width: 1056px)", result["layout"]["mediaquery"])
+        self.assertIn("(max-width:1056px)", queries)
 
 
 if __name__ == "__main__":

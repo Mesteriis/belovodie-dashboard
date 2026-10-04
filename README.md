@@ -2,7 +2,8 @@
 
 A dark petrol and cyan Home Assistant theme and Lovelace composition preset.
 The desktop layout has four primary measurements, a tabbed workspace, a detail
-dock and quick actions. It targets a 2200 × 1440 display. Details open in Universal
+dock and quick actions. Its default calibration is 2200 × 1440 CSS pixels;
+the actual browser viewport controls the responsive layout. Details open in Universal
 Card dialogs; long content scrolls inside the workspace or dialog.
 
 This repository does not implement a new card. It composes existing projects:
@@ -34,8 +35,20 @@ Keep both files private. The renderer has no network access or credentials:
 
 ```sh
 python3 tools/render.py original.json pages.json output.json \
-  --url-path dashboard-example --clock-entity sensor.time
+  --url-path dashboard-example --clock-entity sensor.time --screen 2200x1440
 ```
+
+`--screen WIDTHxHEIGHT` is a configurable typography/spacing calibration, not a
+fixed page size. The Python API accepts `compose(..., screen=Screen(width, height))`
+from `src/screen.py`. Use CSS viewport pixels rather than a panel's physical pixel
+count. The same rendered dashboard can be used on different devices: its height
+tracks `100dvh`, and its measurements and spacing scale with viewport width and
+height. At 1650px and below the header shows fewer tabs; at 1056px and below primary
+measurements use two columns and the detail dock moves below the workspace. Every
+route remains reachable from **Ещё**. On short screens long working content scrolls
+inside the card; compact density caps prevent a small calibration from enlarging
+text beyond its slots. The page stays bounded. No device detection service, browser
+storage or screen-specific dashboard copies are required.
 
 Apply the rendered configuration through Home Assistant's dashboard editor/API
 after backing up the original. Each original view must appear in the bindings;
