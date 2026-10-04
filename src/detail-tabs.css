@@ -1,0 +1,6 @@
+:host {display:block;--uc-card-bg:#102b38;--uc-border-color:#1b4353;}
+.header {display:none!important;}
+.body[data-mode="tabs"] {max-height:none!important;}
+.tabs-content {overflow:auto!important;max-height:70vh;overscroll-behavior:contain;}
+.tab-button {flex-direction:row!important;gap:10px!important;}
+.tab-label {font-size:18px!important;text-transform:none!important;}

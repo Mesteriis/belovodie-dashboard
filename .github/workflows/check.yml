@@ -1,0 +1,10 @@
+name: Check preset
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 -m unittest discover -s tests -v
+      - run: python3 -m json.tool hacs.json >/dev/null
+      - run: python3 -m json.tool src/button-templates.json >/dev/null

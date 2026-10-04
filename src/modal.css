@@ -1,0 +1,6 @@
+:host {display:block;height:100%;min-height:0;--uc-card-bg:#102b38;--uc-border-color:#1b4353;--uc-text-color:#dceef5;--uc-icon-color:#48c7ef;--uc-header-gap:22px;--uc-header-hover-bg:#173b4c;}
+.universal-card {height:100%;box-sizing:border-box;border:1px solid #1b4353!important;border-radius:22px;background:#102b38;box-shadow:none!important;}
+.header {height:100%;min-height:60px;padding:0 28px!important;box-sizing:border-box;}
+.header-title {font-size:var(--bc-font,26px)!important;font-weight:400!important;}
+.header-icon {--mdc-icon-size:clamp(28px,2.8vw,54px);}
+.expand-icon {--mdc-icon-size:26px;transform:rotate(-90deg)!important;}

@@ -1,0 +1,370 @@
+{
+  "bc_action": {
+    "show_state": false,
+    "show_label": true,
+    "show_icon": true,
+    "show_name": true,
+    "styles": {
+      "card": [
+        {
+          "height": "100%"
+        },
+        {
+          "box-sizing": "border-box"
+        },
+        {
+          "border-radius": "22px"
+        },
+        {
+          "border": "1px solid #1b4353"
+        },
+        {
+          "background": "#102b38"
+        },
+        {
+          "box-shadow": "none"
+        },
+        {
+          "padding": "24px 28px"
+        },
+        {
+          "color": "#dceef5"
+        }
+      ],
+      "grid": [
+        {
+          "grid-template-areas": "\"i n arrow\""
+        },
+        {
+          "grid-template-columns": "56px minmax(0,1fr) 20px"
+        },
+        {
+          "grid-template-rows": "minmax(0,1fr)"
+        }
+      ],
+      "name": [
+        {
+          "justify-self": "start"
+        },
+        {
+          "font-size": "var(--bc-font)"
+        },
+        {
+          "font-weight": 400
+        },
+        {
+          "white-space": "normal"
+        },
+        {
+          "text-align": "left"
+        }
+      ],
+      "icon": [
+        {
+          "width": "clamp(26px,3vw,52px)"
+        },
+        {
+          "color": "#48c7ef"
+        }
+      ],
+      "label": [
+        {
+          "font-size": "var(--bc-small)"
+        },
+        {
+          "color": "#9fc5d6"
+        }
+      ],
+      "custom_fields": {
+        "arrow": [
+          {
+            "color": "#91b9ce"
+          },
+          {
+            "justify-self": "end"
+          }
+        ]
+      }
+    },
+    "custom_fields": {
+      "arrow": "<ha-icon icon=\"mdi:chevron-right\" style=\"width:24px;height:24px\"></ha-icon>"
+    }
+  },
+  "bc_metric": {
+    "template": "bc_action",
+    "styles": {
+      "grid": [
+        {
+          "grid-template-areas": "\"i n\" \"value value\" \"l l\""
+        },
+        {
+          "grid-template-columns": "44px minmax(0,1fr)"
+        },
+        {
+          "grid-template-rows": "40px minmax(0,1fr) 46px"
+        },
+        {
+          "row-gap": "12px"
+        }
+      ],
+      "icon": [
+        {
+          "width": "40px"
+        }
+      ],
+      "label": [
+        {
+          "justify-self": "start"
+        },
+        {
+          "text-align": "left"
+        },
+        {
+          "white-space": "normal"
+        },
+        {
+          "line-height": 1.35
+        }
+      ],
+      "name": [
+        {
+          "font-size": "var(--bc-font)"
+        }
+      ],
+      "custom_fields": {
+        "value": [
+          {
+            "justify-self": "start"
+          },
+          {
+            "text-align": "left"
+          },
+          {
+            "font-size": "var(--bc-value)"
+          },
+          {
+            "font-weight": 600
+          },
+          {
+            "line-height": 1.1
+          }
+        ],
+        "arrow": [
+          {
+            "display": "none"
+          }
+        ],
+        "chart": [
+          {
+            "position": "absolute"
+          },
+          {
+            "width": "29%"
+          },
+          {
+            "height": "80px"
+          },
+          {
+            "right": "22px"
+          },
+          {
+            "bottom": "60px"
+          }
+        ],
+        "decor": [
+          {
+            "position": "absolute"
+          },
+          {
+            "width": "70px"
+          },
+          {
+            "height": "70px"
+          },
+          {
+            "right": "32px"
+          },
+          {
+            "top": "45%"
+          },
+          {
+            "color": "#39758d"
+          }
+        ]
+      }
+    },
+    "custom_fields": {
+      "value": "[[[ const invalid=v=>v===undefined||v===null||v===''||['unknown','unavailable'].includes(String(v)); const esc=v=>String(v).replace(/[&<>\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',\"'\":'&#39;'}[c])); const e=entity; let v=variables.value_attribute?e?.attributes?.[variables.value_attribute]:e?.state; if (invalid(v)||(variables.guard_entity&&invalid(states[variables.guard_entity]?.state))) return '—'; if(!isNaN(Number(v))) v=Number(v).toLocaleString(hass.locale.language,{maximumFractionDigits:variables.decimals??1}); const unit=variables.unit??e?.attributes?.unit_of_measurement??''; return esc(v)+(unit?'<span style=\"font-size:var(--bc-unit);font-weight:400;margin-left:10px\">'+esc(unit)+'</span>':''); ]]]",
+      "arrow": ""
+    },
+    "label": "[[[ if(!entity||['unknown','unavailable'].includes(entity.state)||(variables.guard_entity&&['unknown','unavailable'].includes(states[variables.guard_entity]?.state))) return 'Нет данных'; if(variables.description_entity){let e=states[variables.description_entity]; return e?.attributes?.description_ru || e?.state || '';} return variables.caption || ''; ]]]"
+  },
+  "bc_nav": {
+    "template": "bc_action",
+    "show_icon": false,
+    "show_label": false,
+    "styles": {
+      "card": [
+        {
+          "padding": "14px 12px"
+        },
+        {
+          "border-radius": "18px"
+        }
+      ],
+      "grid": [
+        {
+          "grid-template-areas": "\"n\""
+        },
+        {
+          "grid-template-columns": "1fr"
+        }
+      ],
+      "name": [
+        {
+          "justify-self": "center"
+        },
+        {
+          "white-space": "nowrap"
+        },
+        {
+          "font-size": "var(--bc-font)"
+        }
+      ],
+      "custom_fields": {
+        "arrow": [
+          {
+            "display": "none"
+          }
+        ]
+      }
+    }
+  },
+  "bc_brand": {
+    "template": "bc_action",
+    "show_name": false,
+    "show_label": false,
+    "styles": {
+      "card": [
+        {
+          "background": "transparent"
+        },
+        {
+          "border": "none"
+        },
+        {
+          "padding": "0"
+        }
+      ],
+      "grid": [
+        {
+          "grid-template-areas": "\"i\""
+        },
+        {
+          "grid-template-columns": "1fr"
+        }
+      ],
+      "icon": [
+        {
+          "width": "70px"
+        }
+      ],
+      "custom_fields": {
+        "arrow": [
+          {
+            "display": "none"
+          }
+        ]
+      }
+    }
+  },
+  "bc_clock": {
+    "template": "bc_action",
+    "show_icon": false,
+    "styles": {
+      "card": [
+        {
+          "background": "transparent"
+        },
+        {
+          "border": "none"
+        },
+        {
+          "padding": "6px"
+        }
+      ],
+      "grid": [
+        {
+          "grid-template-areas": "\"l\" \"time\""
+        },
+        {
+          "grid-template-columns": "1fr"
+        },
+        {
+          "grid-template-rows": "1fr 1fr"
+        }
+      ],
+      "label": [
+        {
+          "justify-self": "end"
+        },
+        {
+          "font-size": "var(--bc-small)"
+        }
+      ],
+      "custom_fields": {
+        "time": [
+          {
+            "justify-self": "end"
+          },
+          {
+            "font-size": "clamp(24px,2.3vw,40px)"
+          },
+          {
+            "letter-spacing": "2px"
+          }
+        ],
+        "arrow": [
+          {
+            "display": "none"
+          }
+        ]
+      }
+    }
+  },
+  "bc_small": {
+    "template": "bc_metric",
+    "styles": {
+      "card": [
+        {
+          "padding": "18px 22px"
+        }
+      ],
+      "grid": [
+        {
+          "grid-template-rows": "30px minmax(0,1fr) 30px"
+        },
+        {
+          "row-gap": "2px"
+        }
+      ],
+      "name": [
+        {
+          "font-size": "var(--bc-small)"
+        }
+      ],
+      "icon": [
+        {
+          "width": "30px"
+        }
+      ],
+      "custom_fields": {
+        "value": [
+          {
+            "font-size": "clamp(22px,2.2vw,36px)"
+          }
+        ]
+      }
+    }
+  }
+}
