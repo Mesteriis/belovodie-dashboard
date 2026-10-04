@@ -30,6 +30,8 @@ def animated_weather(card):
         "atmo-weather-card$": ":host{height:100%!important;min-height:0!important}"
                  ":host,*{pointer-events:none!important}"
                  "#card-root{height:100%!important;border:0;box-shadow:none;border-radius:0}"
+                 "#card-root.weather-overcast{background-image:var(--bc-weather-art)!important;"
+                 "background-size:auto 100%;background-position:right top;background-repeat:no-repeat}"
                  "#card-root::after{content:'';position:absolute;inset:0;pointer-events:none;"
                  "background:linear-gradient(90deg,#102b38 0%,rgba(16,43,56,.8) 28%,"
                  "rgba(16,43,56,.22) 100%);z-index:5;opacity:1}",

@@ -284,3 +284,10 @@ Assistant's detailed weather forecast; the dialog was closed after verification.
 A regression covers both shadow-root input boundaries.
 
 final result: passed
+
+The final visual comparison keeps the original overcast photograph below the
+live sky effects only for Atmo's overcast class. Other conditions use Atmo's
+condition-specific skies, avoiding clouds on a clear day. The current card stays
+close to the supplied artwork while its effects follow real weather.
+
+final result: passed
