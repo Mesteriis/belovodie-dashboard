@@ -1,5 +1,40 @@
 # Belovodie Command visual verification
 
+## New 100% baseline (owner-selected previous 80%)
+
+The owner selected the live panel at its previous 80% as the new 100% target.
+This supersedes an independent typography/layout reduction. Only the owned
+canvas scale and its preference conversion changed; layout, tokens and bindings
+remain the same.
+
+- Source: `.local/baseline-target-old-80.png`, production Home, previous 80%.
+- Implementation: `.local/baseline-preview-new-100.png`, preview Home, new 100%.
+  Both are native 1600×900 pixel captures at a 1600×900 CSS viewport, with the
+  same browser density, Today selected, details closed and HA chrome hidden.
+  No image rescaling was required. The live weather and clock changed between
+  captures; these are expected provider/time differences.
+- Full comparison: `.local/baseline-comparison-full.png` (3200×900). Focused
+  typography/spacing comparison: `.local/baseline-comparison-font-spacing.png`.
+  Both were opened together. All nine primary region coordinates match within
+  0.03 CSS pixels and computed title fonts match. No actionable P0/P1/P2
+  differences remain: typography, spacing, palette, assets and copy retain the
+  selected appearance. Supplied weather artwork and library icons are unchanged.
+- Real settings clicks verified 95% → zoom 0.76, the 50% bound → 0.4, the 150%
+  bound → 1.2, and reset 100% → 0.8. The old URL at 80% showed 100% in settings.
+  Navigation and reload retained the new 100% preference.
+- Preview geometry passed 90 valid combinations: all 20 routes at 100%, plus
+  five core routes at 50/150%, each at 2200×1440, 1280×800 and 800×1280. Three
+  traversals were repeated after the browser viewport changed during navigation;
+  the corrected harness sets dimensions after loading each route. No layout
+  fix or rejected measurements were counted as passing evidence.
+- Twenty-three local regressions passed, including old/new storage and URL
+  migration, exact new 100%=old 80%, repeated navigation, bounds, blocked
+  storage, scoped live updates and retained child actions/context. The private
+  binding comparison retained 2,734 data/action contracts; only panel-scale
+  JavaScript actions changed. No device services were executed.
+
+final result: passed
+
 ## Scale and compact-control follow-up
 
 - The owner's new density request supersedes the earlier enlarged native-tile
