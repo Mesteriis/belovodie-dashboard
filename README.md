@@ -11,8 +11,9 @@ This repository does not implement a new card. It composes existing projects:
 | --- | --- |
 | Measurements, actions and navigation | [Button Card](https://github.com/custom-cards/button-card) |
 | Viewport grid | [Layout Card](https://github.com/thomasloven/lovelace-layout-card) |
-| Tabs and dialogs | [Universal Card](https://github.com/Mesteriis/universal-card) |
-| Forecast and precipitation | [Weather Chart Card HA](https://github.com/w4mhi/weather-chart-card-ha) |
+| Tabs and dialogs | [Universal Card](https://github.com/Mesteriis/universal-card) 1.0.10+ |
+| Forecast, precipitation and historical charts | [ApexCharts](https://github.com/RomRider/apexcharts-card) |
+| Nested card styles | [Card Mod](https://github.com/thomasloven/lovelace-card-mod) |
 | Historical charts | [ApexCharts](https://github.com/RomRider/apexcharts-card), [Mini Graph Card](https://github.com/kalkih/mini-graph-card) |
 | Dashboard chrome | [Kiosk Mode](https://github.com/NemesisRE/kiosk-mode) |
 
@@ -43,8 +44,22 @@ Entity IDs, device actions and routes are supplied by the owner, never guessed.
 
 Measurement templates display `—` and **Нет данных** for unavailable/unknown
 entities. An optional `guard_entity` prevents a stale derived meter from being
-presented as a live measurement. Explicitly label partial-meter data. The preset
+presented as a live measurement. Use `guard_entities` when an aggregate depends
+on several measurements; every dependency must be available. Explicitly label partial-meter data. The preset
 does not change any control service or local/cloud routing.
+
+`hourly_generator(field)` reads an existing entity's `attributes.hourly.time`
+and the selected hourly field for ApexCharts. Unix seconds are converted to
+milliseconds; the chart horizon selects points. Missing values remain null and
+explicit zero remains zero. Label apparent temperature as apparent temperature.
+No forecast or departure data are fabricated when a provider is unavailable.
+
+`styled(card, css, selector=...)` uses Card Mod's documented shadow-root styles
+for nested cards. It also removes inherited card pseudo-element overlays that
+would otherwise change the intended surfaces. Workspace scrolling stays inside
+the card; details are closed dialogs and do not extend the document.
+`visual_tile(card)` keeps the native tile's actions and features while enlarging
+its typography and icon for the desktop grid.
 
 Navigation's **Ещё** menu includes Settings, HACS and an editor link with
 `disable_km` so hiding dashboard chrome does not remove access to administration.

@@ -6,8 +6,10 @@ configuration before implementation.
 
 Button Card already supports the reference's measurements, icons, actions and
 navigation. Layout Card accepts CSS grid rows and a bounded viewport height.
-Universal Card 1.0.8 already supplies tabs, lazy dialogs, Escape/backdrop closing
-and Home Assistant context for nested cards. Charts use established packages.
+Universal Card supplies tabs, lazy dialogs and Escape/backdrop closing. Its own
+repository was updated separately: 1.0.9 fixes grid spacing, valid scrolling CSS
+and dialog context; 1.0.10 opens initially expanded inline modes correctly.
+Charts use established packages.
 Therefore this project is one cohesive theme/layout preset, not another card.
 Unrelated future frontend cards must have their own repositories.
 
@@ -16,7 +18,10 @@ For weather, compared [Weather Chart Card HA](https://github.com/w4mhi/weather-c
 [Nimbus](https://github.com/maxfok/nimbus-weather-card), and
 [Platinum Weather Card Plus Charts](https://github.com/rudizl/platinum-weather-card-plus-charts).
 Weather Chart Card HA v1.7.4 supports forecast-only mode, six hourly forecasts,
-condition icons, precipitation bars and configurable colours. The original
+condition icons, precipitation bars and configurable colours. Its fixed layout
+did not reproduce the selected reference as closely as the existing ApexCharts
+and Button Card composition, so it is optional rather than a preset dependency.
+The weather icon assets use the existing Basmilius icon library. The original
 [Weather Chart Card](https://github.com/mlamberts78/weather-chart-card) explicitly
 states that it is no longer maintained; use the maintained fork.
 
