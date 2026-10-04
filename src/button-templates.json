@@ -36,7 +36,7 @@
           "grid-template-areas": "\"i n arrow\""
         },
         {
-          "grid-template-columns": "56px minmax(0,1fr) 20px"
+          "grid-template-columns": "72px minmax(0,1fr) 24px"
         },
         {
           "grid-template-rows": "minmax(0,1fr)"
@@ -88,7 +88,8 @@
     },
     "custom_fields": {
       "arrow": "<ha-icon icon=\"mdi:chevron-right\" style=\"width:24px;height:24px\"></ha-icon>"
-    }
+    },
+    "extra_styles": ":host{display:block;height:100%;min-height:0;} ha-card{height:100%;} ha-card::before,ha-card::after{display:none!important;content:none!important}"
   },
   "bc_metric": {
     "template": "bc_action",
@@ -98,7 +99,7 @@
           "grid-template-areas": "\"i n\" \"value value\" \"l l\""
         },
         {
-          "grid-template-columns": "44px minmax(0,1fr)"
+          "grid-template-columns": "60px minmax(0,1fr)"
         },
         {
           "grid-template-rows": "40px minmax(0,1fr) 46px"
@@ -140,13 +141,19 @@
             "text-align": "left"
           },
           {
-            "font-size": "var(--bc-value)"
+            "font-size": "[[[ return !entity||['unknown','unavailable'].includes(entity.state)||variables.value_attribute||!isNaN(Number(entity.state))?'var(--bc-value)':'clamp(24px,2vw,42px)'; ]]]"
           },
           {
             "font-weight": 600
           },
           {
             "line-height": 1.1
+          },
+          {
+            "white-space": "normal"
+          },
+          {
+            "overflow-wrap": "anywhere"
           }
         ],
         "arrow": [
@@ -194,10 +201,10 @@
       }
     },
     "custom_fields": {
-      "value": "[[[ const invalid=v=>v===undefined||v===null||v===''||['unknown','unavailable'].includes(String(v)); const esc=v=>String(v).replace(/[&<>\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',\"'\":'&#39;'}[c])); const e=entity; let v=variables.value_attribute?e?.attributes?.[variables.value_attribute]:e?.state; if (invalid(v)||(variables.guard_entity&&invalid(states[variables.guard_entity]?.state))) return '—'; if(!isNaN(Number(v))) v=Number(v).toLocaleString(hass.locale.language,{maximumFractionDigits:variables.decimals??1}); const unit=variables.unit??e?.attributes?.unit_of_measurement??''; return esc(v)+(unit?'<span style=\"font-size:var(--bc-unit);font-weight:400;margin-left:10px\">'+esc(unit)+'</span>':''); ]]]",
+      "value": "[[[ const invalid=v=>v===undefined||v===null||v===''||['unknown','unavailable'].includes(String(v)); const esc=v=>String(v).replace(/[&<>\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',\"'\":'&#39;'}[c])); const e=entity; let v=variables.value_attribute?e?.attributes?.[variables.value_attribute]:e?.state; const guards=[...(variables.guard_entity?[variables.guard_entity]:[]),...(variables.guard_entities||[])]; if (invalid(v)||guards.some(id=>invalid(states[id]?.state))) return '—'; if(!isNaN(Number(v))) v=Number(v).toLocaleString(hass.locale.language,{minimumFractionDigits:variables.decimals??0,maximumFractionDigits:variables.decimals??1}); else v=variables.state_labels?.[v] || e?.attributes?.state_ru || (typeof hass.formatEntityState==='function'?hass.formatEntityState(e):({'on':'Вкл','off':'Выкл'}[v]||v)); const unit=variables.unit??e?.attributes?.unit_of_measurement??''; return esc(v)+(unit?'<span style=\"font-size:var(--bc-unit);font-weight:400;margin-left:10px\">'+esc(unit)+'</span>':''); ]]]",
       "arrow": ""
     },
-    "label": "[[[ if(!entity||['unknown','unavailable'].includes(entity.state)||(variables.guard_entity&&['unknown','unavailable'].includes(states[variables.guard_entity]?.state))) return 'Нет данных'; if(variables.description_entity){let e=states[variables.description_entity]; return e?.attributes?.description_ru || e?.state || '';} return variables.caption || ''; ]]]"
+    "label": "[[[ if(!entity||['unknown','unavailable'].includes(entity.state)||[...(variables.guard_entity?[variables.guard_entity]:[]),...(variables.guard_entities||[])].some(id=>!states[id]||['unknown','unavailable'].includes(states[id].state))) return 'Нет данных'; if(variables.description_entity){let e=states[variables.description_entity]; return e?.attributes?.description_ru || e?.state || '';} return variables.caption || ''; ]]]"
   },
   "bc_nav": {
     "template": "bc_action",
@@ -210,6 +217,9 @@
         },
         {
           "border-radius": "18px"
+        },
+        {
+          "height": "100%"
         }
       ],
       "grid": [
@@ -366,5 +376,145 @@
         ]
       }
     }
+  },
+  "bc_weather": {
+    "template": "bc_metric",
+    "styles": {
+      "grid": [
+        {
+          "grid-template-areas": "\"n n n\" \"i value value\" \"condition feels feels\" \"l l l\""
+        },
+        {
+          "grid-template-columns": "110px minmax(0,1fr) minmax(0,1fr)"
+        },
+        {
+          "grid-template-rows": "40px minmax(0,1fr) 35px 36px"
+        },
+        {
+          "row-gap": "8px"
+        }
+      ],
+      "icon": [
+        {
+          "width": "100px"
+        }
+      ],
+      "custom_fields": {
+        "condition": [
+          {
+            "text-align": "left"
+          },
+          {
+            "justify-self": "start"
+          },
+          {
+            "font-size": "var(--bc-small)"
+          }
+        ],
+        "feels": [
+          {
+            "text-align": "left"
+          },
+          {
+            "justify-self": "start"
+          },
+          {
+            "font-size": "var(--bc-small)"
+          },
+          {
+            "color": "#9fc5d6"
+          }
+        ]
+      },
+      "entity_picture": [
+        {
+          "width": "110px"
+        },
+        {
+          "height": "110px"
+        },
+        {
+          "border-radius": "0"
+        },
+        {
+          "filter": "brightness(0) saturate(100%) invert(72%) sepia(39%) saturate(1490%) hue-rotate(160deg) brightness(99%) contrast(89%)"
+        }
+      ]
+    },
+    "custom_fields": {
+      "condition": "[[[ const labels={sunny:'Ясно','clear-night':'Ясно',partlycloudy:'Облачно',cloudy:'Пасмурно',rainy:'Дождь',pouring:'Ливень',lightning:'Гроза','lightning-rainy':'Гроза',fog:'Туман',snowy:'Снег',windy:'Ветер'}; return labels[entity?.state] || 'Нет данных'; ]]]",
+      "feels": "[[[ const raw=states[variables.feels_like_entity]?.state; if(raw===undefined||['unknown','unavailable'].includes(raw))return ''; const n=Number(raw);return Number.isFinite(n)?'Ощущается '+Math.round(n)+'°':''; ]]]"
+    },
+    "show_entity_picture": true,
+    "entity_picture": "[[[ const night=states['sun.sun']?.state==='below_horizon'; const map={'clear-night':'clear-night',sunny:night?'clear-night':'clear-day',cloudy:'cloudy',partlycloudy:night?'partly-cloudy-night':'partly-cloudy-day',rainy:night?'overcast-night-rain':'overcast-day-rain',pouring:night?'extreme-night-rain':'extreme-day-rain',lightning:night?'thunderstorms-night':'thunderstorms-day','lightning-rainy':night?'thunderstorms-night-rain':'thunderstorms-day-rain',fog:night?'fog-night':'fog-day',snowy:'snow','snowy-rainy':'sleet',windy:'wind'}; return 'https://cdn.jsdelivr.net/gh/w4mhi/weather-chart-card-ha@v1.7.4/dist/icons/'+(map[entity?.state]||'cloudy')+'.svg'; ]]]"
+  },
+  "bc_forecast_slot": {
+    "template": "bc_action",
+    "show_name": false,
+    "show_label": true,
+    "styles": {
+      "card": [
+        {
+          "background": "transparent"
+        },
+        {
+          "border": "none"
+        },
+        {
+          "padding": "0"
+        }
+      ],
+      "grid": [
+        {
+          "grid-template-areas": "\"i\" \"temperature\" \"l\""
+        },
+        {
+          "grid-template-columns": "1fr"
+        },
+        {
+          "grid-template-rows": "55px 30px 25px"
+        }
+      ],
+      "icon": [
+        {
+          "width": "54px"
+        }
+      ],
+      "label": [
+        {
+          "font-size": "22px"
+        }
+      ],
+      "custom_fields": {
+        "arrow": [
+          {
+            "display": "none"
+          }
+        ],
+        "temperature": [
+          {
+            "font-size": "28px"
+          },
+          {
+            "color": "#dceef5"
+          }
+        ]
+      },
+      "entity_picture": [
+        {
+          "width": "68px"
+        },
+        {
+          "height": "68px"
+        },
+        {
+          "border-radius": "0"
+        },
+        {
+          "filter": "brightness(0) saturate(100%) invert(72%) sepia(39%) saturate(1490%) hue-rotate(160deg) brightness(99%) contrast(89%)"
+        }
+      ]
+    },
+    "extra_styles": "ha-card::before,ha-card::after{display:none!important;content:none!important}"
   }
 }

@@ -1,0 +1,18 @@
+:host {
+  display: block;
+  height: 100%;
+  --ha-tile-info-primary-font-size: var(--bc-font, 30px);
+  --ha-tile-info-secondary-font-size: 36px;
+  --ha-tile-info-gap: 10px;
+  --ha-tile-info-secondary-color: #9fc5d6;
+}
+ha-card {
+  height: 100%!important;
+  background: #102b38!important;
+  border: 1px solid #1b4353!important;
+  box-shadow: none!important;
+  padding: 16px;
+  box-sizing: border-box;
+}
+ha-tile-container {height: 100%;}
+ha-tile-icon {--tile-icon-size: 68px; --mdc-icon-size: 44px;}

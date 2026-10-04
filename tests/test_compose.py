@@ -49,9 +49,11 @@ class CompositionTests(unittest.TestCase):
         script += "const h={locale:{language:'en'}}; console.log(JSON.stringify(["
         script += "fn({state:'unknown'}, {}, {},h),fn({state:'unavailable'}, {}, {},h),"
         script += "fn({state:'0'}, {}, {},h),fn({state:'12'}, {guard_entity:'sensor.guard'}, {'sensor.guard':{state:'unavailable'}},h),"
-        script += "fn({state:'<img>'}, {}, {},h)]));"
+        script += "fn({state:'<img>'}, {}, {},h),"
+        script += "fn({state:'0'}, {guard_entities:['sensor.a','sensor.b']}, {'sensor.a':{state:'0'},'sensor.b':{state:'unknown'}},h),"
+        script += "fn({state:'0'}, {guard_entities:['sensor.a','sensor.b']}, {'sensor.a':{state:'0'},'sensor.b':{state:'0'}},h)]));"
         values = json.loads(subprocess.check_output(["node", "-e", script], text=True))
-        self.assertEqual(values, ["—", "—", "0", "—", "&lt;img&gt;"])
+        self.assertEqual(values, ["—", "—", "0", "—", "&lt;img&gt;", "—", "0"])
 
 
 if __name__ == "__main__":

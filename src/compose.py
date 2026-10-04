@@ -34,6 +34,33 @@ def metric(name, entity, icon, unit=None, **variables):
                   entity=entity, variables={"unit": unit, **variables})
 
 
+def styled(card, css, selector=None, surface=False):
+    """Apply card-mod explicitly to nested cards created by another custom card."""
+    base = ":host{display:block;height:100%;min-height:0}ha-card{height:100%;box-sizing:border-box;box-shadow:none;"
+    base += ("background:#102b38;border:1px solid #1b4353;padding:16px 18px;overflow:hidden;}"
+             if surface else "background:none;border:none;padding:0;}")
+    reset = "ha-card::before,ha-card::after{display:none!important;content:none!important}"
+    styles = {".": base + reset}
+    if selector:
+        styles[f"{selector}$"] = css + reset
+    else:
+        styles["."] += css
+    return {"type": "custom:mod-card", "card": deepcopy(card), "card_mod": {"style": styles}}
+
+
+def hourly_generator(field):
+    return (ROOT / "src/hourly-generator.js").read_text().replace("__FIELD__", json.dumps(field))
+
+
+def visual_tile(card):
+    """Keep native actions/features while sizing a tile for the desktop grid."""
+    if card.get("type") != "tile":
+        raise ValueError("visual_tile requires a native tile card")
+    content = deepcopy(card)
+    content["vertical"] = True
+    return styled(content, (ROOT / "src/native-tile.css").read_text(), "hui-tile-card")
+
+
 def modal(title, icon, cards, card_id):
     return {"type": "custom:universal-card", "card_id": card_id,
             "title": title, "icon": icon, "body_mode": "modal",
@@ -83,7 +110,7 @@ def navigation(pages, current, url_path, clock_entity=None):
         button("HACS", "mdi:store", {"action": "navigate", "navigation_path": "/hacs"})]
     more = modal("Ещё", "mdi:chevron-down", [grid(extra, "repeat(3,minmax(0,1fr))")],
                  f"bc-nav-{current}")
-    more["custom_css"]["css"] += "\n.header{height:100%;padding:0 22px!important}.header-title{font-size:var(--bc-font)!important}.header-icon{display:none}"
+    more["custom_css"]["css"] += "\n.header{height:100%;padding:0 12px!important;gap:8px!important}.header-left{display:none!important}.header-title{font-size:var(--bc-font)!important}.header-icon{display:none}.expand-icon{transform:none!important}"
     logo = button("", "mdi:home-assistant", {"action": "navigate",
                   "navigation_path": f"/{url_path}/{pages[0]['path']}"}, "bc_brand")
     clock = button("", template="bc_clock", entity=clock_entity,
@@ -126,7 +153,11 @@ def compose(original, pages, url_path, clock_entity=None):
         sidebar = grid(dock, rows=f"repeat({len(dock)},minmax(0,1fr))", height="100%", gap="10px")
         sidebar["view_layout"] = {"grid-area": "dock"}
         cards.append(sidebar)
-        footer = grid(page["footer"], "repeat(3,minmax(0,1fr))", height="100%")
+        footer_label = button("Быстрые сцены", template="bc_nav", styles={
+            "card": [{"border": "none"}, {"background": "transparent"}, {"padding": "0"}],
+            "name": [{"justify-self": "start"}, {"font-size": "var(--bc-small)"}, {"color": "#9fc5d6"}]})
+        footer = grid([footer_label, grid(page["footer"], "repeat(3,minmax(0,1fr))", height="100%")],
+                      rows="30px minmax(0,1fr)", height="100%", gap="12px")
         footer["view_layout"] = {"grid-area": "footer"}
         cards.append(footer)
         last = deepcopy(page["last"])
@@ -134,12 +165,12 @@ def compose(original, pages, url_path, clock_entity=None):
         cards.append(last)
         result["views"].append({"path": page["path"], "title": page["title"],
             "icon": page.get("icon", "mdi:view-dashboard"),
-            "theme": THEME, "type": "custom:grid-layout", "cards": cards,
-            "layout": {"height": "calc(100dvh - 32px)", "margin": "0", "padding": "16px 24px",
+            "theme": THEME, "background": "var(--primary-background-color)", "type": "custom:grid-layout", "cards": cards,
+            "layout": {"height": "calc(100dvh - 32px)", "background": "#092430", "margin": "0", "padding": "16px 24px",
                 "box-sizing": "border-box", "grid-template-columns": "repeat(4,minmax(0,1fr))",
                 "grid-template-rows": "minmax(78px,8vh) minmax(180px,22vh) minmax(0,1fr) minmax(100px,11vh)",
                 "grid-template-areas": '"nav nav nav nav" "stat0 stat1 stat2 stat3" "work work work dock" "footer footer footer last"',
-                "grid-gap": "20px", "card_margin": "0", "place-items": "stretch",
+                "grid-gap": "20px", "card_margin": "0", "--masonry-view-card-margin": "0px", "place-items": "stretch",
                 "mediaquery": {"(max-width: 1050px)": {
                     "height": "calc(100dvh - 16px)", "padding": "8px", "grid-gap": "8px",
                     "grid-template-columns": "repeat(4,minmax(0,1fr))",

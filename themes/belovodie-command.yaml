@@ -1,4 +1,7 @@
 Belovodie Command:
+  primary-font-family: 'Inter, "Segoe UI", sans-serif'
+  ha-font-family-body: 'Inter, "Segoe UI", sans-serif'
+  ha-font-family-heading: 'Inter, "Segoe UI", sans-serif'
   primary-color: '#48c7ef'
   accent-color: '#48c7ef'
   primary-background-color: '#092430'
