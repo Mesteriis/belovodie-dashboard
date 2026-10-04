@@ -59,7 +59,7 @@ def forecast_templates():
             "card":[{"height":"100%"},{"box-sizing":"border-box"},{"background":"transparent"},
                     {"border":"none"},{"border-radius":"0"},{"padding":"8px 0"},{"box-shadow":"none"}],
             "grid":[{"grid-template-areas":'"time" "weather" "temperature" "rain"'},
-                    {"grid-template-columns":"1fr"},{"grid-template-rows":"24px minmax(28px,1fr) 40px 24px"}],
+                    {"grid-template-columns":"1fr"},{"grid-template-rows":"minmax(0,1fr) minmax(0,3fr) minmax(0,2fr) minmax(0,1fr)"}],
             "custom_fields":{
                 "time":[{"font-size":"22px"},{"color":"#9fc5d6"}],
                 "weather":[{"height":"100%"},{"max-height":"74px"},{"width":"74px"},{"justify-self":"center"}],
@@ -67,7 +67,11 @@ def forecast_templates():
                 "rain":[{"font-size":"18px"},{"color":"#9fc5d6"}]},
         },
         "extra_styles":"ha-card::before,ha-card::after{display:none!important;content:none!important}"
-                       "#weather img{width:100%;height:100%;filter:brightness(0) saturate(100%) invert(72%) sepia(39%) saturate(1490%) hue-rotate(160deg) brightness(99%) contrast(89%)}#rain ha-icon{--mdc-icon-size:18px;color:#45c7e8;vertical-align:middle}"
+                       "ha-card{container-type:size}#container{height:100%;min-height:0}"
+                       "#container>*{min-height:0;line-height:1.1}#time{font-size:clamp(12px,14cqh,22px)!important}"
+                       "#temperature{font-size:clamp(20px,26cqh,42px)!important}#rain{font-size:clamp(11px,12cqh,18px)!important}"
+                       "#weather{width:100%!important;max-width:74px;min-height:0}"
+                       "#weather img{width:100%;height:100%;object-fit:contain;filter:brightness(0) saturate(100%) invert(72%) sepia(39%) saturate(1490%) hue-rotate(160deg) brightness(99%) contrast(89%)}#rain ha-icon{--mdc-icon-size:1em;color:#45c7e8;vertical-align:middle}"
                        "@media(max-width:1056px){#time{font-size:14px!important}#temperature{font-size:26px!important}"
                        "#rain{font-size:13px!important}#weather{width:34px!important;height:34px!important}}",
     }
@@ -119,9 +123,13 @@ def atmospheric_forecast(*, weather_entity, rain_entity, feels_entity, sun_entit
         # Let the template provide its horizon-aware title instead of HA's entity name.
         hero.pop('name')
         slots=[button('',template='bc_forecast_hour',entity=rain_entity,
-                      triggers_update=triggers,variables={**values,'slot':i}) for i in range(hours)]
-        strip=styled(grid(slots,f'repeat({hours},minmax(72px,1fr))',height='100%',gap='0px'),
-                     ':host{height:100%;display:block;overflow-x:auto;overscroll-behavior:contain;scrollbar-width:thin}#root{height:100%;min-height:0}.card{border-right:1px solid #244452}.card:last-child{border-right:0}', 'layout-card')
+                      triggers_update=triggers,variables={**values,'slot':i}) for i in range(0,hours,3 if hours==24 else 1)]
+        strip=styled(grid(slots,f'repeat({len(slots)},minmax(0,1fr))',height='100%',gap='0px'),
+                     ':host{height:100%;min-height:0;display:block}', 'layout-card')
+        strip['card_mod']['style']['layout-card$'] = {
+            '.': ':host{height:100%;min-height:0;display:block}',
+            'grid-layout$': ':host{height:100%;min-height:0}div{height:100%;min-height:0;box-sizing:border-box;grid-template-rows:minmax(0,1fr)!important;overflow:hidden!important}button-card{min-height:0;height:100%}'
+        }
         details=modal('Подробнее','mdi:chevron-right',details_cards,f'{card_id}-details-{hours}')
         details['custom_css']['css']+='\n.universal-card{background:none!important;border:0!important}.header{height:calc(100% - 8px);box-sizing:border-box;width:max-content;margin:4px 16px 4px auto;border:1px solid #24505d;border-radius:28px;justify-content:flex-end;padding:0 16px!important}.header-left{display:none!important}.header-title{font-size:16px!important;font-weight:400!important;text-align:right!important}.header-content{align-items:flex-end!important}.header-right{margin-left:0!important}.expand-icon{transform:rotate(-90deg)!important;width:18px!important;height:18px!important}'
         panel=grid([hero,strip,graph(hours),graph(hours,True),details],

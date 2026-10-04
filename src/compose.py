@@ -243,6 +243,8 @@ def compose(original, pages, url_path, clock_entity=None, screen=None):
             m["view_layout"] = {"grid-area": f"stat{i}"}
             cards.append(m)
         work = tabs(page["tabs"], f"bc-work-{page['path']}", workspace=True)
+        if page.get("workspace_scroll", True) is False:
+            work["custom_css"]["css"] += "\n.tabs-content{overflow:hidden!important}.tab-panel.active{min-height:0!important}"
         work["view_layout"] = {"grid-area": "work"}
         cards.append(work)
         sidebar = grid(dock, rows=f"repeat({len(dock)},minmax(0,1fr))", height="100%", gap="10px")

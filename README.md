@@ -47,6 +47,9 @@ bindings (`path`, `title`, four `metrics`, workspace `tabs`, `dock`, `footer`, `
 `last` is optional: omit it or set it to `null` to remove the secondary footer
 measurement. Quick actions then span the full footer in both desktop and compact
 layouts. Other pages can retain their own footer measurement.
+Set `workspace_scroll` to `false` for a page whose summary content fits its
+allocated workspace; the default preserves internal scrolling for longer views.
+Put secondary detail in dialogs before disabling workspace scrolling.
 Keep both files private. The renderer has no network access or credentials:
 
 ```sh
@@ -96,9 +99,11 @@ No forecast or departure data are fabricated when a provider is unavailable.
 `forecast.atmospheric_forecast(...)` composes the selected photographic hero,
 hourly strip, two compact ApexCharts plots and a Universal Card details dialog.
 Its 6/24-hour switch is local to the card and resets to six hours on reload; it
-creates no helper entity and calls no device service. The 24-hour strip scrolls
-horizontally inside the card. The enclosing workspace keeps its viewport bound. Short screens retain scrolling
-inside the workspace; the document itself does not grow. Both plots use the
+creates no helper entity and calls no device service. The six-hour strip shows
+each hour; the 24-hour strip shows eight points at three-hour intervals. Both
+plots retain hourly data. Strip rows and typography follow the allocated height
+without internal scrolling. The enclosing workspace keeps its viewport bound;
+longer workspace views can retain their own scrolling policy. Both plots use the
 allocated container height, including the inner `#graph`, with a zero parent
 height offset. This avoids ApexCharts 2.2.3's responsive-config clone failure
 when crossing a breakpoint.
