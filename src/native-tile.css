@@ -1,18 +1,19 @@
 :host {
   display: block;
-  height: 100%;
-  --ha-tile-info-primary-font-size: var(--bc-font, 30px);
-  --ha-tile-info-secondary-font-size: var(--bc-small-value,36px);
-  --ha-tile-info-gap: 10px;
+  height: auto;
+  --ha-tile-info-primary-font-size: 18px;
+  --ha-tile-info-secondary-font-size: 20px;
+  --ha-tile-info-gap: 4px;
   --ha-tile-info-secondary-color: #9fc5d6;
 }
 ha-card {
-  height: 100%!important;
+  height: auto!important;
   background: #102b38!important;
   border: 1px solid #1b4353!important;
   box-shadow: none!important;
-  padding: 16px;
+  padding: 8px 10px;
   box-sizing: border-box;
 }
-ha-tile-container {height: 100%;}
-ha-tile-icon {--tile-icon-size: clamp(44px,3.1vw,68px); --mdc-icon-size: clamp(28px,2vw,44px);}
+ha-tile-container {height: auto;}
+ha-tile-icon {--tile-icon-size: 36px; --mdc-icon-size: 24px;}
+ha-card::before,ha-card::after {display:none!important;content:none!important;}

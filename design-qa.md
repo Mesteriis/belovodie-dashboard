@@ -1,5 +1,39 @@
 # Belovodie Command visual verification
 
+## Scale and compact-control follow-up
+
+- The owner's new density request supersedes the earlier enlarged native-tile
+  typography. Titles are now 18px, values 20px and icons 36px. Tiles use horizontal
+  content-sized rows with 8px/10px padding instead of filling large grid tracks.
+  Actions inside preset dialogs use 18px labels and 56px controls. Source actions,
+  entity bindings and native features remain unchanged.
+- More → Panel Settings offers 50–150% in five-point steps and reset to 100%.
+  Real clicks verified both bounds, live percentage updates, an open settings
+  dialog throughout, reset, and 95% after navigation and reload. Preferences are
+  scoped to the browser/dashboard; blocked storage uses the explicit URL.
+- The existing Button Card runtime provides the canvas. Its nested-card
+  `do_not_eval` option preserves child template/entity context. Native HA chrome
+  and portalled dialogs stay at their normal scale. No additional card runtime.
+- Preview rendered geometry passed all 20 routes × three scales (50/100/150%) ×
+  three viewports (2200×1440, 1280×800, 800×1280): 180 checks. No configuration
+  errors, document/full-view scrolling or primary regions outside the viewport.
+  Temporary viewport overrides were reset.
+- Twenty-one local regressions passed, including scope/defaults, invalid values,
+  five-point rounding, bounds, live owned-DOM updates, reset, preserved URL values,
+  blocked storage, child context/action retention and idempotent compact rows.
+- Visual follow-up compares the previous native 1600×900 Home capture with the
+  current 100% Home capture in the same browser. The intended compact entity
+  change is verified separately on System. Evidence and combined comparisons
+  are private under `.local`; no device data or screenshots are distributed.
+- Earlier prototype findings were fixed before the 180-check run: an intrinsic
+  Button Card host width left unused space; explicit full-width host styles fixed
+  it. CSS zoom already compensates percentage dimensions, so removing a second
+  inverse-width calculation restored the physical viewport size. The inner grid
+  subtracts its padding once, keeping the footer fully visible. A native tile
+  pseudo-element reset retains flat petrol surfaces.
+
+final result: passed
+
 ## Interface toggle and stale-resource follow-up
 
 - The user's already open Main tab retained Universal Card 1.0.8 and omitted

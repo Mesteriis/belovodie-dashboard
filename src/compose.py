@@ -9,6 +9,7 @@ from pathlib import Path
 import re
 from screen import Screen, apply_screen
 from chrome import interface_control, kiosk_config
+from scale import scale_canvas, scale_controls
 
 ROOT = Path(__file__).resolve().parents[1]
 THEME = "Belovodie Command"
@@ -60,12 +61,64 @@ def hourly_generator(field):
 
 
 def visual_tile(card):
-    """Keep native actions/features while sizing a tile for the desktop grid."""
+    """Keep native actions/features with compact control typography."""
     if card.get("type") != "tile":
         raise ValueError("visual_tile requires a native tile card")
     content = deepcopy(card)
-    content["vertical"] = True
+    content["vertical"] = False
     return styled(content, (ROOT / "src/native-tile.css").read_text(), "hui-tile-card")
+
+
+def compact_controls(cards, dialog=True):
+    """Refresh preset tiles and compact preset dialog actions, retaining bindings."""
+    result = deepcopy(cards)
+
+    def visual(node):
+        return (node.get("type") == "custom:mod-card" and
+                node.get("card", {}).get("type") == "tile" and
+                isinstance(node.get("card_mod", {}).get("style"), dict) and
+                "hui-tile-card$" in node["card_mod"]["style"])
+
+    def visit(node, inside_dialog):
+        if isinstance(node, list):
+            for child in node:
+                visit(child, inside_dialog)
+        elif isinstance(node, dict):
+            styles = node.get("card_mod", {}).get("style", {})
+            if visual(node):
+                node["card"]["vertical"] = False
+                styles["hui-tile-card$"] = (ROOT / "src/native-tile.css").read_text()
+                compact = ":host{height:auto!important}ha-card{height:auto!important}"
+                if compact not in styles.get(".", ""):
+                    styles["."] = styles.get(".", "") + compact
+            children = node.get("cards", [])
+            if (node.get("type") == "custom:layout-card" and node.get("layout_type") == "custom:grid-layout"
+                    and children and all(isinstance(child, dict) and visual(child) for child in children)):
+                layout = node.setdefault("layout", {})
+                for profile in [layout, *layout.get("mediaquery", {}).values()]:
+                    profile["grid-template-rows"] = "none"
+                    profile["grid-auto-rows"] = "max-content"
+                    profile["align-content"] = "start"
+                layout["grid-gap"] = "10px"
+            if (inside_dialog and node.get("type") == "custom:button-card" and
+                    node.get("template") in ("bc_action", "bc_nav")):
+                style = node.setdefault("styles", {})
+                for part, declarations in {
+                    "card": [{"height": "56px"}, {"padding": "8px 12px"}, {"border-radius": "12px"}],
+                    "name": [{"font-size": "18px"}], "label": [{"font-size": "14px"}],
+                    "icon": [{"width": "26px"}],
+                    "grid": [{"grid-template-columns": "minmax(0,1fr)" if node["template"] == "bc_nav"
+                              else "32px minmax(0,1fr) 20px"}]
+                }.items():
+                    replaced = {key for item in declarations for key in item}
+                    style[part] = [item for item in style.get(part, []) if not replaced.intersection(item)] + declarations
+            owns_dialog = (node.get("type") == "custom:universal-card" and
+                           node.get("card_id", "").startswith("bc-") and node.get("body_mode") == "modal")
+            for key, value in list(node.items()):
+                if isinstance(value, (dict, list)):
+                    visit(value, inside_dialog or (owns_dialog and key == "body"))
+    visit(result, dialog)
+    return result
 
 
 def modal(title, icon, cards, card_id):
@@ -82,7 +135,7 @@ def modal(title, icon, cards, card_id):
                       "close_on_backdrop": True, "close_on_escape": True,
                       "show_close": True},
             "custom_css": {"scope": "global", "css": (ROOT / "src/modal.css").read_text()},
-            "body": {"cards": deepcopy(cards)}}
+            "body": {"cards": compact_controls(cards)}}
 
 
 def tabs(items, card_id, workspace=False):
@@ -111,10 +164,13 @@ def navigation(pages, current, url_path, clock_entity=None):
                               "name": [{"font-weight": 600 if active else 400}]})
     main = pages[:6]
     # Compact navigation hides secondary tabs; every route remains in this menu.
-    extra = [interface_control(url_path), *[nav(p) for p in pages if p["path"] != current],
+    preferences = modal("Настройки панели", "mdi:tune", [*scale_controls(url_path),
+                        interface_control(url_path)], f"bc-settings-{current}")
+    preferences["modal"]["max_width"] = "560px"
+    extra = [interface_control(url_path), preferences, *[nav(p) for p in pages if p["path"] != current],
         button("Редактор панели", "mdi:pencil", {"action": "navigate",
                "navigation_path": f"/{url_path}/{current}?edit=1&disable_km"}),
-        button("Настройки", "mdi:cog", {"action": "navigate", "navigation_path": "/config"}),
+        button("Настройки HA", "mdi:cog", {"action": "navigate", "navigation_path": "/config"}),
         button("HACS", "mdi:store", {"action": "navigate", "navigation_path": "/hacs"})]
     more = modal("Ещё", "mdi:chevron-down", [grid(extra, "repeat(3,minmax(0,1fr))")],
                  f"bc-nav-{current}")
@@ -228,5 +284,17 @@ def compose(original, pages, url_path, clock_entity=None, screen=None):
                     "(max-width: 1650px), (max-height: 900px)": {
                     "grid-gap": "12px",
                     "grid-template-rows": "60px minmax(160px,22dvh) minmax(0,1fr) 100px"}}}})
+        # Refresh privately supplied preset cards without regenerating bindings.
+        cards = compact_controls(cards, dialog=False)
         apply_screen(cards, screen)
+        view = result["views"][-1]
+        layout = view["layout"]
+        content = {"type": "custom:layout-card", "layout_type": "custom:grid-layout",
+                   "layout": {**deepcopy(layout), "height": "calc(100% - clamp(16px,2.222222dvh,32px))"}, "cards": cards}
+        view["cards"] = [scale_canvas(content, url_path)]
+        view["layout"] = {"height": "calc(100dvh - var(--kiosk-header-height,var(--header-height,56px)))",
+                          "margin": "0", "padding": "0",
+                          "grid-template-columns": "minmax(0,1fr)",
+                          "grid-template-rows": "minmax(0,1fr)", "card_margin": "0",
+                          "grid-gap": "0", "place-items": "stretch"}
     return result

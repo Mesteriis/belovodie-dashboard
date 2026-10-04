@@ -5,11 +5,14 @@ import sys
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
-from compose import compose, grid, metric, modal
+from compose import compact_controls, compose, grid, metric, modal, visual_tile
 from screen import Screen
 
 
 class CompositionTests(unittest.TestCase):
+    def content(self, view):
+        return view["cards"][0]["custom_fields"]["dashboard"]["card"]
+
     def setUp(self):
         self.original = {"views": [{"path": "home"}, {"path": "room"}],
                          "button_card_templates": {"existing": {"show_icon": False}}}
@@ -36,12 +39,13 @@ class CompositionTests(unittest.TestCase):
         for v in result["views"]:
             self.assertIn("100dvh", v["layout"]["height"])
             self.assertIn("--kiosk-header-height", v["layout"]["height"])
-            navigation = v["cards"][0]
+            content = self.content(v)
+            navigation = content["cards"][0]
             more = next(c for c in navigation["cards"] if c.get("view_layout", {}).get("grid-area") == "more")
             control = more["body"]["cards"][0]["cards"][0]
             self.assertEqual(control["tap_action"]["action"], "javascript")
             self.assertIn("belovodie:ha-ui:dashboard-example", control["tap_action"]["javascript"])
-            dock = next(c for c in v["cards"] if c.get("view_layout", {}).get("grid-area") == "dock")
+            dock = next(c for c in content["cards"] if c.get("view_layout", {}).get("grid-area") == "dock")
             self.assertEqual(dock["layout"]["height"], "100%")
             details = dock["cards"][0]
             self.assertEqual(details["body_mode"], "modal")
@@ -65,8 +69,8 @@ class CompositionTests(unittest.TestCase):
     def test_screen_parameter_changes_calibration_without_fixed_page_dimensions(self):
         desktop = compose(self.original, self.pages, "dashboard-example")
         tablet = compose(self.original, self.pages, "dashboard-example", screen=Screen(1280, 800))
-        desktop_metric = desktop["views"][0]["cards"][1]
-        tablet_metric = tablet["views"][0]["cards"][1]
+        desktop_metric = self.content(desktop["views"][0])["cards"][1]
+        tablet_metric = self.content(tablet["views"][0])["cards"][1]
         desktop_css = desktop["button_card_templates"]["bc_action"]["extra_styles"]
         tablet_css = tablet["button_card_templates"]["bc_action"]["extra_styles"]
         self.assertIn("1.3636vw", desktop_css)
@@ -83,14 +87,15 @@ class CompositionTests(unittest.TestCase):
         more_pages = self.pages + [{**self.pages[0], "path": "third", "title": "Third"}]
         original = {"views": [{"path": p["path"]} for p in more_pages]}
         result = compose(original, more_pages, "dashboard-example")
-        navigation = result["views"][0]["cards"][0]
+        content = self.content(result["views"][0])
+        navigation = content["cards"][0]
         more = next(c for c in navigation["cards"] if c.get("view_layout", {}).get("grid-area") == "more")
         links = more["body"]["cards"][0]["cards"]
-        routes = {c["tap_action"].get("navigation_path") for c in links}
+        routes = {c.get("tap_action", {}).get("navigation_path") for c in links}
         self.assertIn("/dashboard-example/room", routes)
         self.assertIn("/dashboard-example/third", routes)
         self.assertIn("/config", routes)
-        compact = result["views"][0]["layout"]["mediaquery"]["(max-width: 1056px)"]
+        compact = content["layout"]["mediaquery"]["(max-width: 1056px)"]
         self.assertIn('"dock dock"', compact["grid-template-areas"])
         self.assertIn('"stat0 stat1" "stat2 stat3"', compact["grid-template-areas"])
 
@@ -108,6 +113,21 @@ class CompositionTests(unittest.TestCase):
         result = grid([], mediaquery=queries)
         self.assertIn("(max-width: 1056px)", result["layout"]["mediaquery"])
         self.assertIn("(max-width:1056px)", queries)
+
+    def test_compact_controls_retain_actions_and_do_not_stretch_entity_rows(self):
+        tile = visual_tile({"type": "tile", "entity": "light.example", "features": [{"type": "light-brightness"}],
+                            "tap_action": {"action": "toggle"}})
+        source = grid([tile, tile], "1fr 1fr", rows="repeat(2,minmax(0,1fr))", height="100%",
+                      mediaquery={"(max-width: 1056px)": {"grid-template-rows": "repeat(2,1fr)"}})
+        before = json.dumps(source)
+        result = compact_controls(source, dialog=False)
+        self.assertEqual(before, json.dumps(source))
+        self.assertEqual(result["layout"]["grid-auto-rows"], "max-content")
+        self.assertEqual(result["layout"]["mediaquery"]["(max-width: 1056px)"]["grid-template-rows"], "none")
+        self.assertFalse(result["cards"][0]["card"]["vertical"])
+        self.assertEqual(result["cards"][0]["card"]["tap_action"], {"action": "toggle"})
+        self.assertEqual(result["cards"][0]["card"]["features"], [{"type": "light-brightness"}])
+        self.assertEqual(compact_controls(result, dialog=False), result)
 
 
 if __name__ == "__main__":

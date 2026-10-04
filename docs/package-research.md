@@ -31,3 +31,12 @@ so adding another navigation/dialog runtime is unnecessary.
 
 Installation follows [HACS theme requirements](https://hacs.xyz/docs/publish/theme/):
 one theme file in `themes`. This project does not bundle or fork the dependencies.
+
+For the requested 50–150% scale in five-point steps, inspected the installed
+[Browser Control Card](https://github.com/mathoudebine/homeassistant-browser-control-card)
+and Button Card 7.0.1 source. Browser Control Card's zoom actions use ten-point
+steps on the entire document, without the requested bounded browser preference.
+Button Card already supports nested cards with `do_not_eval` and JavaScript
+actions. Its existing runtime therefore composes the scoped canvas and settings
+controls without creating another card repository. Native detail cards use
+compact Card Mod styles; existing actions and features are retained.

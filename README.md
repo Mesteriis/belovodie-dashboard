@@ -10,7 +10,7 @@ This repository does not implement a new card. It composes existing projects:
 
 | Function | Existing package |
 | --- | --- |
-| Measurements, actions and navigation | [Button Card](https://github.com/custom-cards/button-card) |
+| Measurements, actions, navigation and panel scale | [Button Card](https://github.com/custom-cards/button-card) 7.0.1+ |
 | Viewport grid | [Layout Card](https://github.com/thomasloven/lovelace-layout-card) |
 | Tabs and dialogs | [Universal Card](https://github.com/Mesteriis/universal-card) 1.0.10+ |
 | Forecast, precipitation and historical charts | [ApexCharts](https://github.com/RomRider/apexcharts-card) |
@@ -79,8 +79,25 @@ No forecast or departure data are fabricated when a provider is unavailable.
 for nested cards. It also removes inherited card pseudo-element overlays that
 would otherwise change the intended surfaces. Workspace scrolling stays inside
 the card; details are closed dialogs and do not extend the document.
-`visual_tile(card)` keeps the native tile's actions and features while enlarging
-its typography and icon for the desktop grid.
+`visual_tile(card)` keeps the native tile's actions and features with horizontal
+controls, 18px titles, 20px values, 36px icons and smaller padding. Groups of these
+tiles use content-sized rows instead of stretching controls across the workspace.
+Preset actions inside dialogs also use compact 18px text and 56px controls;
+primary measurements keep their display typography.
+
+**Ещё → Настройки панели** contains a live scale control. The existing size is
+**100%**; decrease or increase it in **5 percentage point** steps between **50%**
+and **150%**, or reset to 100%. The preference is stored per browser and dashboard
+and applies to every route after navigation and reload. Different tablets keep
+their own values. `bc_scale` in the URL overrides the saved value and provides a
+fallback when browser storage is unavailable.
+
+Scale uses the installed Button Card as a transparent canvas around the existing
+Layout Card. `do_not_eval` preserves each child's entity/template context and
+original actions. Only that canvas is zoomed; it still fills the available view.
+The document, native Home Assistant interface and dialogs retain their normal
+scale. Compact dialogs stay readable while the panel is zoomed. No additional
+card runtime, device helper or Home Assistant service call is required.
 
 Navigation's **Ещё** menu starts with **Показать интерфейс HA** / **Скрыть интерфейс
 HA**. The control shows or hides Home Assistant's header and sidebar together.
