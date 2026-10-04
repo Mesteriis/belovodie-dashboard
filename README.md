@@ -11,6 +11,7 @@ This repository does not implement a new card. It composes existing projects:
 | Function | Existing package |
 | --- | --- |
 | Measurements, actions, navigation and panel scale | [Button Card](https://github.com/custom-cards/button-card) 7.0.1+ |
+| Animated weather measurement background | [Atmo Weather Card](https://github.com/whyisthisbroken/atmo-weather-card) v7.5.0 |
 | Viewport grid | [Layout Card](https://github.com/thomasloven/lovelace-layout-card) |
 | Tabs and dialogs | [Universal Card](https://github.com/Mesteriis/universal-card) 1.0.10+ |
 | Forecast, precipitation and historical charts | [ApexCharts](https://github.com/RomRider/apexcharts-card) |
@@ -26,6 +27,18 @@ if you have not already enabled themes. Reload themes and select **Belovodie
 Command** on the intended dashboard views. Install the cards above through HACS.
 No Home Assistant core restart is needed for this preset when themes are already
 configured.
+
+For the animated `bc_weather` measurement, add
+`whyisthisbroken/atmo-weather-card` as a HACS custom repository of type **Dashboard**
+and install v7.5.0. Reload the browser after installing its resource. The composer
+uses the existing weather entity and `sun.sun` (override with
+`variables.sun_entity`) for live conditions and day/night. Temperature, feels-like,
+humidity, wind and actions remain in the original Button Card. Atmo draws the sky
+behind them, at 20 FPS and DPR 1, and pauses when offscreen. Unknown/unavailable
+weather hides the animation. Reduced-motion preferences use the original static
+art. Weather data is not sent to Atmo's authors; its upstream card requests the
+Figtree stylesheet from Google Fonts. Atmo is MIT licensed and installed intact;
+this repository does not copy its renderer or assets.
 
 The theme changes colours and typography. The optional offline composer produces
 the bounded layout; downloading a theme does not rewrite an existing dashboard.

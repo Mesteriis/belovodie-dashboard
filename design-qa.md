@@ -249,3 +249,38 @@ native icon/marker and real-data differences remain the only visual constraints.
 Private evidence: `.local/production-layout-audit.json`,
 `.local/production-reference-comparison.png`, `.local/production-visual-review.png`,
 `.local/production-home-final.png` and `.local/production-rooms-modal.png`.
+
+## Animated weather measurement
+
+The existing compact weather measurement now uses Atmo Weather Card v7.5.0 as
+its non-interactive background. It follows the existing weather and sun entities;
+the original Button Card retains temperature, feels-like, humidity, wind and
+all bindings/actions. No weather renderer or icon asset was copied into this
+repository. The dark scrim protects foreground readability and the original
+100% calibration (previously 80%) stays unchanged.
+
+All 20 preview routes passed at 2200×1440, 1280×800 and 800×1280 CSS pixels
+(60 checks). Seven existing weather slots loaded the renderer. No visible
+configuration errors or page overflow occurred. Live overcast/day classes matched
+the current backend states. Two native viewport captures confirmed changing sky
+pixels with unchanged data labels. The reduced-motion emulation hid the sky and
+restored its display after clearing emulation. The first oversized whole-card
+pixel-difference threshold was unsuitable for slow cloud drift; the final
+measurement excludes labels and records 2193 changed sky pixels at >=3/255.
+Upstream's 26 tests passed, including precipitation and simulated day/night;
+the preset's 26 tests passed, including binding preservation and unavailable
+weather. These simulated conditions are distinguished from the live overcast
+condition; no Home Assistant entity states or physical devices were modified.
+
+Private evidence: `.local/weather-preview-layout-audit.json`,
+`.local/weather-motion-comparison.png`, `.local/weather-installed-package-hashes.json`.
+
+final result: passed
+
+The click check found that an upstream nested element could capture input despite
+the outer sky container disabling pointer events. Pointer events are now disabled
+in both nested shadow roots. The real preview weather card again opened Home
+Assistant's detailed weather forecast; the dialog was closed after verification.
+A regression covers both shadow-root input boundaries.
+
+final result: passed

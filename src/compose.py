@@ -10,6 +10,7 @@ import re
 from screen import Screen, apply_screen
 from chrome import interface_control, kiosk_config
 from scale import scale_canvas, scale_controls
+from weather import animated_weather
 
 ROOT = Path(__file__).resolve().parents[1]
 THEME = "Belovodie Command"
@@ -236,7 +237,7 @@ def compose(original, pages, url_path, clock_entity=None, screen=None):
         cards = [navigation(pages, page["path"], url_path, clock_entity)]
         cards[0]["view_layout"] = {"grid-area": "nav"}
         for i, m in enumerate(page["metrics"]):
-            m = deepcopy(m)
+            m = animated_weather(m)
             m["view_layout"] = {"grid-area": f"stat{i}"}
             cards.append(m)
         work = tabs(page["tabs"], f"bc-work-{page['path']}", workspace=True)
