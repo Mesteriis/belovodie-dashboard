@@ -4,16 +4,25 @@ import json
 
 
 def scale_state(url_path):
-    key = json.dumps(f"belovodie:scale:{url_path}")
+    key = json.dumps(f"belovodie:scale:v2:{url_path}")
+    legacy_key = json.dumps(f"belovodie:scale:{url_path}")
     return f"""const normalize = value => {{
   const number = Number(value);
   return value === null || value === '' || !Number.isFinite(number)
     ? 100 : Math.max(50, Math.min(150, Math.round(number / 5) * 5));
 }};
+const migrate = value => value === null || value === '' || !Number.isFinite(Number(value))
+  ? 100 : normalize(Number(value) / 0.8);
 let stored = null;
-try {{ stored = window.localStorage.getItem({key}); }}
+try {{
+  stored = window.localStorage.getItem({key});
+  if (stored === null) stored = migrate(window.localStorage.getItem({legacy_key}));
+}}
 catch (error) {{ /* The explicit URL remains usable without browser storage. */ }}
-const scale = normalize(new URLSearchParams(window.location.search).get('bc_scale') ?? stored);
+const parameters = new URLSearchParams(window.location.search);
+const override = parameters.get('bc_scale');
+const scale = override === null ? normalize(stored)
+  : parameters.get('bc_scale_base') === '80' ? normalize(override) : migrate(override);
 """
 
 
@@ -22,19 +31,20 @@ def scale_action(url_path, delta=None):
     if delta not in (-5, 5, None):
         raise ValueError("Scale changes use five-point steps or reset")
     scope = json.dumps(url_path)
-    key = json.dumps(f"belovodie:scale:{url_path}")
+    key = json.dumps(f"belovodie:scale:v2:{url_path}")
     target = "100" if delta is None else f"normalize(scale + ({delta}))"
     return scale_state(url_path) + f"""const next = {target};
 try {{ window.localStorage.setItem({key}, String(next)); }}
 catch (error) {{ console.warn('Belovodie: scale uses the URL because browser storage is unavailable.'); }}
 const url = new URL(window.location.href);
 url.searchParams.set('bc_scale', String(next));
+url.searchParams.set('bc_scale_base', '80');
 window.history.replaceState(window.history.state, '', url.href);
 // Dialogs are portalled outside the canvas, so find our controls in open roots.
 const visit = root => {{
   for (const element of root.querySelectorAll('*')) {{
     if (element.getAttribute('data-bc-viewport') === {scope}) {{
-      element.style.setProperty('--bc-ui-scale', String(next / 100));
+      element.style.setProperty('--bc-ui-scale', String(next * 80 / 10000));
     }}
     if (element.getAttribute('data-bc-scale-control') === {scope}) {{
       element.textContent = next + '%';
@@ -92,7 +102,7 @@ def scale_canvas(card, url_path):
             # Button Card must not evaluate the nested cards' templates with the
             # wrapper's empty entity context. Each child evaluates its own config.
             "custom_fields": {"dashboard": {"card": deepcopy(card), "do_not_eval": True}},
-            "styles": {"card": [{"zoom": "var(--bc-ui-scale,1)"},
+            "styles": {"card": [{"zoom": "var(--bc-ui-scale,0.8)"},
                                 {"width": "100%"}, {"height": "100%"},
                                 {"box-sizing": "border-box"}, {"padding": "0"},
                                 {"border": "none"}, {"background": "transparent"},
@@ -103,7 +113,7 @@ def scale_canvas(card, url_path):
                        "custom_fields": {"dashboard": [{"height": "100%"}, {"min-height": "0"},
                                                        {"min-width": "0"}, {"text-align": "initial"}]}},
             "extra_styles": "[[[ " + state + f"this.setAttribute('data-bc-viewport', {scope}); " +
-                            "this.style.setProperty('--bc-ui-scale', String(scale / 100)); return " +
+                            "this.style.setProperty('--bc-ui-scale', String(scale * 80 / 10000)); return " +
                             json.dumps(":host{display:block;width:100%!important;max-width:none!important;"
                                        "height:100%;min-height:0;min-width:0}"
                                        "ha-card::before,ha-card::after{display:none!important;content:none!important}") + "; ]]]"}

@@ -85,12 +85,17 @@ tiles use content-sized rows instead of stretching controls across the workspace
 Preset actions inside dialogs also use compact 18px text and 56px controls;
 primary measurements keep their display typography.
 
-**Ещё → Настройки панели** contains a live scale control. The existing size is
-**100%**; decrease or increase it in **5 percentage point** steps between **50%**
+**Ещё → Настройки панели** contains a live scale control. **100%** now uses the
+previous **80%** appearance: panel fonts, icons, padding and vertical tracks are
+20% smaller than the original baseline. Decrease or increase it in **5 percentage point** steps between **50%**
 and **150%**, or reset to 100%. The preference is stored per browser and dashboard
 and applies to every route after navigation and reload. Different tablets keep
-their own values. `bc_scale` in the URL overrides the saved value and provides a
-fallback when browser storage is unavailable.
+their own values. New URL overrides use `bc_scale=100&bc_scale_base=80` and provide
+a fallback when browser storage is unavailable. Legacy saved values and URLs
+without `bc_scale_base` are converted to the new baseline; old 80% becomes new
+100%. Conversion rounds to five-point steps and respects the new 50–150% bounds.
+Versioned browser storage prevents converting a new preference again; the legacy
+value remains intact. Native HA controls and dialogs keep their existing scale.
 
 Scale uses the installed Button Card as a transparent canvas around the existing
 Layout Card. `do_not_eval` preserves each child's entity/template context and
