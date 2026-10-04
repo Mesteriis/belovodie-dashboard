@@ -66,6 +66,25 @@ class CompositionTests(unittest.TestCase):
         values = json.loads(subprocess.check_output(["node", "-e", script], text=True))
         self.assertEqual(values, ["—", "—", "0", "—", "&lt;img&gt;", "—", "0"])
 
+    def test_optional_last_card_releases_footer_space_on_both_layouts(self):
+        for missing in (True, False):
+            with self.subTest(missing=missing):
+                pages = json.loads(json.dumps(self.pages))
+                if missing:
+                    pages[0].pop("last")
+                else:
+                    pages[0]["last"] = None
+                result = compose(self.original, pages, "dashboard-example")
+                home = self.content(result["views"][0])
+                self.assertFalse(any(c.get("view_layout", {}).get("grid-area") == "last"
+                                     for c in home["cards"]))
+                self.assertIn('"footer footer footer footer"', home["layout"]["grid-template-areas"])
+                compact = home["layout"]["mediaquery"]["(max-width: 1056px)"]
+                self.assertIn('"footer footer"', compact["grid-template-areas"])
+                other = self.content(result["views"][1])
+                self.assertEqual(other, self.content(compose(self.original, self.pages,
+                                                           "dashboard-example")["views"][1]))
+
     def test_screen_parameter_changes_calibration_without_fixed_page_dimensions(self):
         desktop = compose(self.original, self.pages, "dashboard-example")
         tablet = compose(self.original, self.pages, "dashboard-example", screen=Screen(1280, 800))

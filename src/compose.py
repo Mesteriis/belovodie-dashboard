@@ -268,22 +268,26 @@ def compose(original, pages, url_path, clock_entity=None, screen=None):
                           "grid-template-rows": "20px minmax(0,1fr)", "grid-gap": "8px"}})
         footer["view_layout"] = {"grid-area": "footer"}
         cards.append(footer)
-        last = deepcopy(page["last"])
-        last["view_layout"] = {"grid-area": "last"}
-        cards.append(last)
+        has_last = page.get("last") is not None
+        if has_last:
+            last = deepcopy(page["last"])
+            last["view_layout"] = {"grid-area": "last"}
+            cards.append(last)
+        footer_area = "footer footer footer last" if has_last else "footer footer footer footer"
+        compact_footer_area = "footer last" if has_last else "footer footer"
         result["views"].append({"path": page["path"], "title": page["title"],
             "icon": page.get("icon", "mdi:view-dashboard"),
             "theme": THEME, "background": "var(--primary-background-color)", "type": "custom:grid-layout", "cards": cards,
             "layout": {"height": "calc(100dvh - var(--kiosk-header-height,var(--header-height,56px)) - clamp(16px,2.222222dvh,32px))", "background": "#092430", "margin": "0", "padding": "clamp(8px,1.111111dvh,16px) clamp(8px,1.09091vw,24px)",
                 "box-sizing": "border-box", "grid-template-columns": "repeat(4,minmax(0,1fr))",
                 "grid-template-rows": "minmax(78px,8vh) minmax(180px,22vh) minmax(0,1fr) minmax(100px,11vh)",
-                "grid-template-areas": '"nav nav nav nav" "stat0 stat1 stat2 stat3" "work work work dock" "footer footer footer last"',
+                "grid-template-areas": '"nav nav nav nav" "stat0 stat1 stat2 stat3" "work work work dock" ' + f'"{footer_area}"',
                 "grid-gap": "20px", "card_margin": "0", "--masonry-view-card-margin": "0px", "place-items": "stretch",
                 "mediaquery": {"(max-width: 1056px)": {
                     "grid-gap": "8px",
                     "grid-template-columns": "repeat(2,minmax(0,1fr))",
                     "grid-template-rows": "56px minmax(144px,12dvh) minmax(144px,12dvh) minmax(0,1fr) clamp(64px,8dvh,92px) clamp(88px,10dvh,130px)",
-                    "grid-template-areas": '"nav nav" "stat0 stat1" "stat2 stat3" "work work" "dock dock" "footer last"'},
+                    "grid-template-areas": '"nav nav" "stat0 stat1" "stat2 stat3" "work work" "dock dock" ' + f'"{compact_footer_area}"'},
                     "(max-width: 1650px), (max-height: 900px)": {
                     "grid-gap": "12px",
                     "grid-template-rows": "60px minmax(160px,22dvh) minmax(0,1fr) 100px"}}}})

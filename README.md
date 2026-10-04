@@ -44,6 +44,9 @@ The theme changes colours and typography. The optional offline composer produces
 the bounded layout; downloading a theme does not rewrite an existing dashboard.
 Provide an existing Lovelace JSON configuration and a local JSON list of page
 bindings (`path`, `title`, four `metrics`, workspace `tabs`, `dock`, `footer`, `last`).
+`last` is optional: omit it or set it to `null` to remove the secondary footer
+measurement. Quick actions then span the full footer in both desktop and compact
+layouts. Other pages can retain their own footer measurement.
 Keep both files private. The renderer has no network access or credentials:
 
 ```sh
