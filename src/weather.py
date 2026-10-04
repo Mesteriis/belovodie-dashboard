@@ -25,8 +25,10 @@ def animated_weather(card):
     # Card Mod reaches Atmo's shadow root; no weather drawing/runtime is vendored.
     sky = {"type": "custom:mod-card", "card": sky, "card_mod": {"style": {
         ".": ":host{display:block;height:100%;min-height:0}"
+             ":host,ha-card{pointer-events:none!important}"
              "ha-card{height:100%;padding:0;border:0;background:none;box-shadow:none}",
         "atmo-weather-card$": ":host{height:100%!important;min-height:0!important}"
+                 ":host,*{pointer-events:none!important}"
                  "#card-root{height:100%!important;border:0;box-shadow:none;border-radius:0}"
                  "#card-root::after{content:'';position:absolute;inset:0;pointer-events:none;"
                  "background:linear-gradient(90deg,#102b38 0%,rgba(16,43,56,.8) 28%,"

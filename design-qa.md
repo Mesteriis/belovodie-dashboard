@@ -276,3 +276,11 @@ Private evidence: `.local/weather-preview-layout-audit.json`,
 `.local/weather-motion-comparison.png`, `.local/weather-installed-package-hashes.json`.
 
 final result: passed
+
+The click check found that an upstream nested element could capture input despite
+the outer sky container disabling pointer events. Pointer events are now disabled
+in both nested shadow roots. The real preview weather card again opened Home
+Assistant's detailed weather forecast; the dialog was closed after verification.
+A regression covers both shadow-root input boundaries.
+
+final result: passed

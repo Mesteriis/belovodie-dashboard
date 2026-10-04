@@ -31,6 +31,10 @@ class AnimatedWeatherTests(unittest.TestCase):
         atmo = result["custom_fields"]["sky"]["card"]["card"]
         self.assertEqual(atmo["weather_entity"], original["entity"])
         self.assertEqual(atmo["sun_entity"], "sun.example")
+        wrapper_styles = result["custom_fields"]["sky"]["card"]["card_mod"]["style"]
+        # Atmo has its own click listener. Both shadow roots must ignore input.
+        self.assertIn(":host,ha-card{pointer-events:none!important}", wrapper_styles["."])
+        self.assertIn(":host,*{pointer-events:none!important}", wrapper_styles["atmo-weather-card$"])
 
     def test_unavailable_data_hides_weather_animation(self):
         result = animated_weather(self.card())
