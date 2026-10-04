@@ -94,7 +94,11 @@ No forecast or departure data are fabricated when a provider is unavailable.
 hourly strip, two compact ApexCharts plots and a Universal Card details dialog.
 Its 6/24-hour switch is local to the card and resets to six hours on reload; it
 creates no helper entity and calls no device service. The 24-hour strip scrolls
-horizontally inside the card. The enclosing workspace keeps its viewport bound.
+horizontally inside the card. The enclosing workspace keeps its viewport bound. Short screens retain scrolling
+inside the workspace; the document itself does not grow. Both plots use the
+allocated container height, including the inner `#graph`, with a zero parent
+height offset. This avoids ApexCharts 2.2.3's responsive-config clone failure
+when crossing a breakpoint.
 
 Pass existing `weather_entity`, `sun_entity`, `clock_entity`, `rain_entity`,
 `feels_entity`, `details_cards` and a unique `card_id`. The rain provider must
@@ -123,7 +127,8 @@ If the sun is unavailable, day/night is unknown (a reported `clear-night` weathe
 state still selects the night image); other conditions retain a neutral daytime
 photograph. An unavailable rain provider or an expired forecast horizon clears
 the hero artwork and forecast. Missing temperature or rain remains `—`, and
-zero rain remains `0 мм`. Current-condition artwork does not imply that the same
+zero rain remains `0 мм`. Missing hours retain their clock slot instead of
+shifting later forecasts left. Current-condition artwork does not imply that the same
 condition holds for every forecast hour. Unknown WMO codes get no guessed icon.
 
 `styled(card, css, selector=...)` uses Card Mod's documented shadow-root styles

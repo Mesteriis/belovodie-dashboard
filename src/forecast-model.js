@@ -37,8 +37,8 @@ function forecastModel(states, variables, hass, now = Date.now()) {
   }
   function icon(kind, night) {
     const phase = night === true ? 'night' : 'day';
-    return ({clear: 'clear-' + phase, cloudy: night === true ? 'overcast-night' : 'cloudy',
-      rain: 'overcast-' + phase + '-rain', snow: 'snow', fog: 'fog',
+    return ({clear: 'clear-' + phase, cloudy: 'cloudy',
+      rain: 'overcast-' + phase + '-rain', snow: 'snow', fog: 'fog-' + phase,
       storm: 'thunderstorms-' + phase + '-rain'})[kind] || null;
   }
   const points = [];
@@ -52,6 +52,9 @@ function forecastModel(states, variables, hass, now = Date.now()) {
       precipitation: number(rh.precipitation?.[i]), kind, night, icon: icon(kind, night)});
   });
   points.sort((a, b) => a.time - b.time);
+  const byTime = new Map(points.map(p => [p.time, p]));
+  const slots = Array.from({length:hours}, (_, i) => byTime.get(base + i * 3600) ||
+    {time:base + i * 3600, temperature:null, precipitation:null, kind:null, night:null, icon:null});
   const temps = points.map(p => p.temperature).filter(v => v !== null);
   const kinds = {sunny:'clear', 'clear-night':'clear', partlycloudy:'cloudy', cloudy:'cloudy',
     rainy:'rain', pouring:'rain', lightning:'storm', 'lightning-rainy':'storm',
@@ -60,16 +63,18 @@ function forecastModel(states, variables, hass, now = Date.now()) {
   const night = invalid(sun) ? weather?.state === 'clear-night' ? true : null : sun.state === 'below_horizon';
   const asset = points.length && kind ? kind + (['clear','cloudy','rain'].includes(kind)
     ? '-' + (night === true ? 'night' : 'day') : '') : null;
-  const labels = {clear:'Ясно', cloudy:'Пасмурно', rain:'Дождь', fog:'Туман', snow:'Снег', storm:'Гроза'};
+  const labels = {sunny:'Ясно', 'clear-night':'Ясно', partlycloudy:'Облачно', cloudy:'Пасмурно',
+    rainy:'Дождь', pouring:'Ливень', fog:'Туман', snowy:'Снег', 'snowy-rainy':'Снег с дождём',
+    lightning:'Гроза', 'lightning-rainy':'Гроза', windy:'Ветер', 'windy-variant':'Ветер'};
   const min = temps.length ? Math.round(Math.min(...temps)) : null;
   const max = temps.length ? Math.round(Math.max(...temps)) : null;
   const locale = hass?.locale?.language || 'ru';
   const timezone = hass?.config?.time_zone || 'UTC';
   const timeLabel = time => new Date(time * 1000).toLocaleTimeString(locale,
     {timeZone:timezone, hour:'2-digit', minute:'2-digit'});
-  return {hours, points, asset, kind, night, icon:icon(kind, night),
+  return {hours, points, slots, asset, kind, night, icon:icon(kind, night),
     range: min === null ? '—' : min === max ? min + '°' : min + '–' + max + '°',
-    condition: !points.length ? 'Нет прогноза' : labels[kind] || 'Нет текущих данных',
+    condition: !points.length ? 'Нет прогноза' : labels[weather?.state] || 'Нет текущих данных',
     date: new Date(now).toLocaleDateString(locale,{timeZone:timezone,day:'numeric',month:'long'}),
     timeLabel, formatRain: value => value === null ? '—' : value.toLocaleString(locale,{maximumFractionDigits:1}) + ' мм'};
 }

@@ -69,6 +69,14 @@ class ForecastTests(unittest.TestCase):
         for code, kind in cases.items():
             self.assertEqual(self.model(code=code)['points'][0]['kind'],kind)
 
+    def test_missing_hours_do_not_shift_the_hourly_strip(self):
+        f=self.model(times=[3600,10800],temperature=[12,14],precipitation=[0,.1])
+        self.assertEqual(len(f['slots']),6)
+        self.assertEqual(f['slots'][0]['temperature'],12)
+        self.assertEqual(f['slots'][1]['time'],7200)
+        self.assertIsNone(f['slots'][1]['temperature'])
+        self.assertEqual(f['slots'][2]['temperature'],14)
+
     def test_composition_preserves_private_details_and_local_horizon_control(self):
         source={'type':'tile','entity':'sensor.test','tap_action':{'action':'more-info'}}
         config=atmospheric_forecast(weather_entity='weather.test',rain_entity='sensor.rain',
@@ -82,5 +90,19 @@ class ForecastTests(unittest.TestCase):
             self.assertEqual(panel['cards'][0]['variables']['hours'],hours)
             self.assertEqual(len(panel['cards'][1]['card']['cards']),hours)
             self.assertEqual(panel['cards'][4]['body']['cards'][0]['entity'],source['entity'])
+        for tab in config['tabs']:
+            for index in (2,3):
+                chart=tab['cards'][0]['cards'][index]['card']['apex_config']
+                self.assertNotIn('responsive',chart)
+                self.assertEqual(chart['chart']['height'],'100%')
+                self.assertEqual(chart['chart']['parentHeightOffset'],0)
         self.assertEqual(source['tap_action'],{'action':'more-info'})
         self.assertEqual(set(forecast_templates()),{'bc_forecast_hero','bc_forecast_hour'})
+        self.assertNotIn('name',config['tabs'][0]['cards'][0]['cards'][0])
+
+    def test_all_icons_exist_in_the_pinned_library(self):
+        supported={'clear-day','clear-night','cloudy','overcast-day-rain','overcast-night-rain',
+                   'snow','fog-day','fog-night','thunderstorms-day-rain','thunderstorms-night-rain'}
+        for code in [0,1,2,3,45,48,51,53,55,56,57,61,63,65,66,67,71,73,75,77,80,81,82,85,86,95,96,99]:
+            for night in ['above_horizon','below_horizon']:
+                self.assertTrue(all(p['icon'] in supported for p in self.model(code=code,sun=night)['points']))
