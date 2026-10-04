@@ -50,8 +50,16 @@ inside the card; compact density caps prevent a small calibration from enlarging
 text beyond its slots. The page stays bounded. No device detection service, browser
 storage or screen-specific dashboard copies are required.
 
-Apply the rendered configuration through Home Assistant's dashboard editor/API
-after backing up the original. Each original view must appear in the bindings;
+For storage dashboards, apply the rendered configuration through Home Assistant's
+dashboard editor/API after backing up the original. For YAML dashboards, back up
+and replace the configured Lovelace YAML file, validate that the parsed content
+matches the renderer's output, then reload the dashboard. JSON output is valid
+YAML; it may also be serialized as ordinary YAML without changing its contents.
+The storage-save API cannot write a YAML dashboard. Keep the existing dashboard
+mode and avoid editing Home Assistant's internal storage files. No core restart
+is needed for this dashboard-file change.
+
+Each original view must appear in the bindings;
 the renderer rejects a missing view. Original button templates are retained.
 Entity IDs, device actions and routes are supplied by the owner, never guessed.
 

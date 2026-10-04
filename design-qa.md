@@ -122,3 +122,26 @@ Private evidence: `.local/adaptive-layout-audit.json`,
 `.local/adaptive-fixed-800-route-system.png`, `.local/parameter-1280-real.png`.
 The theme's zero masonry margin follows Layout Card's native CSS variable and
 prevents inherited card margins from consuming compact grid tracks.
+
+## Installed dashboard verification
+
+The theme was updated through HACS and its SHA-256 matched the downloaded GitHub
+release. The existing dashboard used YAML mode. Its raw source was backed up,
+checked against the earlier API snapshot, and replaced atomically after a YAML
+round-trip validation. Forced Home Assistant dashboard loading returned the exact
+rendered configuration. Dashboard mode and Home Assistant core stayed unchanged.
+
+All 20 installed routes were then checked at each of 2200×1440, 1280×800 and
+800×1280 CSS pixels: 60 checks, no page overflow, open default dialogs,
+configuration-card errors or unloaded images. Each route's actual browser zoom
+was accounted for when emulating its CSS viewport; preferences were not changed.
+
+The installed room modal fit the portrait viewport, inherited the original
+button templates and loaded all photos. More stayed within the screen. Allergen
+selection was verified after lazy loading completed, then Today was restored.
+The complete installed Home view was compared with the selected reference;
+room, system and finance views were reviewed as a contact sheet. Earlier accepted
+native icon/marker and real-data differences remain the only visual constraints.
+Private evidence: `.local/production-layout-audit.json`,
+`.local/production-reference-comparison.png`, `.local/production-visual-review.png`,
+`.local/production-home-final.png` and `.local/production-rooms-modal.png`.
