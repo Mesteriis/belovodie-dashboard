@@ -6,5 +6,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: python3 -m unittest discover -s tests -v
+      - run: python3 tools/build_theme_assets.py --check
       - run: python3 -m json.tool hacs.json >/dev/null
       - run: python3 -m json.tool src/button-templates.json >/dev/null

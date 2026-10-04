@@ -64,3 +64,21 @@ Primary references:
 - https://github.com/JonesChi/animated-weather-card
 - https://github.com/maxfok/nimbus-weather-card
 - https://github.com/teuchezh/dynamic-weather-card
+
+## Atmospheric hourly workspace (2026-10-04)
+
+Rechecked Atmo's forecast slider and
+[Hourly Weather](https://github.com/decompil3d/lovelace-hourly-weather) before
+implementing the selected scene/strip/plots concept. Their built-in forecast
+layouts do not reproduce this composition or the existing separate Open-Meteo
+feels-like/rain providers. No new card package is created: Button Card owns the
+photographic hero and hourly values, ApexCharts owns both plots, and Universal
+Card owns the horizon switch and details dialog. Atmo remains the installed
+renderer for the smaller current-weather measurement.
+
+Weather-code classification follows the
+[Open-Meteo WMO table](https://open-meteo.com/en/docs), including freezing drizzle,
+freezing rain, snow grains and snow showers. Missing codes are not treated as
+cloudy. Six/24-hour horizons, real sun timing and timestamp joins are tested
+independently of the UI. The generated photographic assets match the selected
+mockup's mountain/lake palette; they contain no weather data or location details.

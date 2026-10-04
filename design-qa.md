@@ -1,5 +1,56 @@
 # Belovodie Command visual verification
 
+## Atmospheric hourly forecast, option 1
+
+- Source visual truth: `.local/selected-forecast-reference.png`, the first
+  displayed concept selected by the owner (1450×1088). The subsequent feedback
+  explicitly requests weather-dependent photographs. Implementation:
+  `.local/forecast-2200-final.png`, live preview Home at 2200×1440 CSS pixels,
+  six hours selected, dialogs closed, current cloudy daytime weather.
+- Full comparison: `.local/forecast-comparison-full.png`; focused hourly/plot
+  comparison: `.local/forecast-comparison-detail.png`. Both were opened together
+  and reviewed. Source inner frame (1377×998) is normalized to the actual
+  implementation frame (1083×780). The browser's raw 2750×1800 screenshot has
+  compositor padding outside its 2200×1440 painted CSS viewport; that padding
+  is cropped, not scaled into the UI. Earlier incomplete/incorrectly normalized
+  captures were excluded from this final comparison.
+- Typography: existing sans-serif family retained; the final pass increases
+  only this forecast's title, range, hourly icons and temperatures to restore
+  the selected hierarchy. Existing panel scale remains unchanged. Smaller
+  screens keep the compact typography. Date/rain/axis text intentionally uses
+  a smaller weight/size than the dominant temperature and remains readable.
+- Layout rhythm: photographic hero occupies 43%, hours 22%, temperature plot
+  17%, rain 12%, details 6%. The selected region order, dark frame, six aligned
+  hours, upper-right horizon selector and lower-right details button are retained.
+  The native library plots use three ticks and real dynamic temperature limits
+  instead of the concept's fixed decorative range. Short workspaces may scroll
+  internally, consistent with the owner's single-screen requirement.
+- Palette/assets: petrol surface, restrained cyan plots/icons and white values.
+  Nine independently generated and inspected WebP mountain/lake photographs
+  share the reference palette. Real library icons and ApexCharts plots render
+  the UI; no UI is baked into the photos. Current daytime/cloudy imagery differs
+  intentionally from the concept's rainy evening. The explicitly labelled rainy
+  night preview fixture was checked and then removed; HA entities were untouched.
+- Copy/content: real provider hours begin at 18:00 in this capture rather than
+  the concept's illustrative 17:00. Real rain quantities and feels-like values
+  replace sample data. Correct Russian six/24-hour wording; absent readings
+  remain dashes, zero stays zero, missing hourly slots do not shift later hours.
+- Interaction: actual 6→24→6 clicks, horizontal 24-hour strip, Details open and
+  Escape close passed. Both plots survived live resizing at 2200×1440,
+  1280×800 and 800×1280 without document overflow. Their SVG heights match
+  their allocated tracks. The earlier Apex responsive-config clone error was
+  fixed with percentage-height containers and zero parent-height offset.
+- Validation: 33 local tests and embedded-asset integrity check passed. Browser
+  errors contain the pre-existing Custom Sidebar installation warning; no new
+  forecast errors remain. No device services executed. Source/action bindings
+  in the details dialog are retained.
+- No actionable P0/P1/P2 findings remain. P3: the chart library's axis typography
+  and flat icons have less visual embellishment than the generated concept;
+  this preserves the compact existing control-panel style.
+
+final result: passed
+
+
 ## New 100% baseline (owner-selected previous 80%)
 
 The owner selected the live panel at its previous 80% as the new 100% target.

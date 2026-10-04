@@ -88,6 +88,49 @@ milliseconds; the chart horizon selects points. Missing values remain null and
 explicit zero remains zero. Label apparent temperature as apparent temperature.
 No forecast or departure data are fabricated when a provider is unavailable.
 
+### Atmospheric hourly forecast
+
+`forecast.atmospheric_forecast(...)` composes the selected photographic hero,
+hourly strip, two compact ApexCharts plots and a Universal Card details dialog.
+Its 6/24-hour switch is local to the card and resets to six hours on reload; it
+creates no helper entity and calls no device service. The 24-hour strip scrolls
+horizontally inside the card. The enclosing workspace keeps its viewport bound. Short screens retain scrolling
+inside the workspace; the document itself does not grow. Both plots use the
+allocated container height, including the inner `#graph`, with a zero parent
+height offset. This avoids ApexCharts 2.2.3's responsive-config clone failure
+when crossing a breakpoint.
+
+Pass existing `weather_entity`, `sun_entity`, `clock_entity`, `rain_entity`,
+`feels_entity`, `details_cards` and a unique `card_id`. The rain provider must
+expose Unix-second `attributes.hourly.time`, WMO `weather_code` and
+`precipitation` in millimeters. The feels-like provider supplies its own Unix-second
+`hourly.time` and `apparent_temperature` in Celsius. Temperatures are joined by
+timestamp, never by array position. The composer includes the required Button
+Card templates automatically. Preserve the caller's actual entity bindings and
+details actions when replacing an existing forecast.
+
+The hero photograph follows the **current** Home Assistant weather condition;
+the hourly icons follow each forecast point. Clear, cloudy and rainy conditions
+have separate day/night photographs, selected by the existing sun entity.
+Fog, snow and thunderstorms have their own photographs; wind uses the cloudy
+landscape. Nighttime hourly icons use the sun entity's next rising/setting
+timestamps. All nine generated landscape assets live in `assets/forecast/` and
+are embedded in the theme as WebP; HACS installs them with the theme, without
+separate local file uploads. Rebuild/check them with:
+
+```sh
+python3 tools/build_theme_assets.py
+python3 tools/build_theme_assets.py --check
+```
+
+If the sun is unavailable, day/night is unknown (a reported `clear-night` weather
+state still selects the night image); other conditions retain a neutral daytime
+photograph. An unavailable rain provider or an expired forecast horizon clears
+the hero artwork and forecast. Missing temperature or rain remains `—`, and
+zero rain remains `0 мм`. Missing hours retain their clock slot instead of
+shifting later forecasts left. Current-condition artwork does not imply that the same
+condition holds for every forecast hour. Unknown WMO codes get no guessed icon.
+
 `styled(card, css, selector=...)` uses Card Mod's documented shadow-root styles
 for nested cards. It also removes inherited card pseudo-element overlays that
 would otherwise change the intended surfaces. Workspace scrolling stays inside
